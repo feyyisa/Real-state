@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AddPropertyForm = () => {
+const AddPropertyForm = ({ ownerId }) => {
   const [formData, setFormData] = useState({
-    owner: '66106de02c2fcbbe3dd22a18', // Replace with actual user ID
+    owner: ownerId, // Pass owner ID dynamically
     location: '',
     price: '',
     type: 'rent',
@@ -29,8 +29,19 @@ const AddPropertyForm = () => {
       });
       alert('✅ Property added successfully!');
       console.log('Property added:', res.data.property);
+
+      // Reset form
+      setFormData({
+        owner: ownerId,
+        location: '',
+        price: '',
+        type: 'rent',
+        size: '',
+        status: 'available',
+      });
+      setImage(null);
     } catch (err) {
-      console.error('❌ Error adding property:', err);
+      console.error('❌ Error adding property:', err.response?.data || err.message);
       alert('❌ Failed to add property');
     }
   };
@@ -71,5 +82,4 @@ const AddPropertyForm = () => {
     </form>
   );
 };
-
 export default AddPropertyForm;

@@ -10,12 +10,6 @@ exports.createProperty = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Optional: Validate owner exists (disable if not needed)
-    // const existingOwner = await User.findById(owner);
-    // if (!existingOwner) {
-    //   return res.status(400).json({ message: "Owner not found" });
-    // }
-
     const newProperty = new Property({
       owner,
       location,
@@ -27,7 +21,6 @@ exports.createProperty = async (req, res) => {
     });
 
     await newProperty.save();
-
     res.status(201).json({ message: "Property added", property: newProperty });
   } catch (error) {
     console.error("Error creating property:", error);
