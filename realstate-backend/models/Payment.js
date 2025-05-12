@@ -1,30 +1,12 @@
-// models/Payment.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
-    property: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Property',
-        required: true
-    },
-    buyer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    amount: {
-        type: Number,
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'completed', 'failed'],
-        default: 'pending'
-    },
-    paymentDate: {
-        type: Date,
-        default: Date.now
-    }
-}, { timestamps: true });
-
-module.exports = mongoose.model('Payment', paymentSchema);
+  propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Properties', required: true },
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
+  amount: { type: Number, required: true },
+  paymentMethod: { type: String, enum: ['card', 'cash', 'chapa'], required: true },
+  status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now }
+});
+module.exports = mongoose.model("Payments", paymentSchema);

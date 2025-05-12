@@ -1,106 +1,52 @@
 const Payment = require('../models/Payment');
+const Property = require('../models/Property');
 
-// Create a new payment
-exports.createPayment = async (req, res) => {
+exports.makePayment = async (req, res) => {
   try {
-    const { property, buyer, amount } = req.body;
+    const { propertyId, customerId, amount, paymentMethod } = req.body;
+
+    const property = await Property.findById(propertyId);
+    if (!property) return res.status(404).json({ message: "Property not found" });
+
+    const ownerId = property.ownerId;
 
     const newPayment = new Payment({
-      property,
-      buyer,
-      amount
+      propertyId,
+      customerId,
+      ownerId,
+      amount,
+      paymentMethod,
+      status: 'completed' // In real-world, handle actual processing
     });
 
     await newPayment.save();
 
-    res.status(201).json({
-      message: 'Payment created successfully',
-      payment: newPayment
-    });
+    // Optionally update property status
+    property.status = 'booked';
+    await property.save();
+
+    res.status(201).json({ message: 'Payment successful', payment: newPayment });
   } catch (error) {
-    res.status(500).json({
-      message: 'Server error',
-      error: error.message
-    });
+    console.error("Payment error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// Get all payments
-exports.getAllPayments = async (req, res) => {
-  try {
-    const payments = await Payment.find()
-      .populate('property')
-      .populate('buyer');
-
-    res.status(200).json(payments);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Server error',
-      error: error.message
-    });
-  }
-};
-
-// Get a single payment by ID
-exports.getPaymentById = async (req, res) => {
-  try {
-    const payment = await Payment.findById(req.params.id)
-      .populate('property')
-      .populate('buyer');
-
-    if (!payment) {
-      return res.status(404).json({ message: 'Payment not found' });
-    }
-
-    res.status(200).json(payment);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Server error',
-      error: error.message
-    });
-  }
-};
-
-// ✅ Get all payments by a specific user
 exports.getPaymentsByUser = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const payments = await Payment.find({ buyer: userId })
-      .populate('property')
-      .sort({ createdAt: -1 });
-
+    const { userId } = req.params;
+    const payments = await Payment.find({ customerId: userId }).populate('propertyId ownerId');
     res.status(200).json(payments);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error fetching user payments',
-      error: error.message
-    });
+  } catch (err) {
+    res.status(500).json({ message: "Error retrieving payments", error: err.message });
   }
 };
 
-// ✅ Mark a payment as completed (e.g. after booking)
-exports.completePayment = async (req, res) => {
+exports.getAllPayments = async (req, res) => {
   try {
-    const paymentId = req.params.id;
-
-    const updated = await Payment.findByIdAndUpdate(
-      paymentId,
-      { status: 'completed' },
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ message: 'Payment not found' });
-    }
-
-    res.status(200).json({
-      message: 'Payment marked as completed',
-      payment: updated
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error updating payment',
-      error: error.message
-    });
+    const payments = await Payment.find().populate('propertyId customerId ownerId');
+    res.status(200).json(payments);
+  } catch (err) {
+    res.status(500).json({ message: "Error retrieving all payments", error: err.message });
   }
 };

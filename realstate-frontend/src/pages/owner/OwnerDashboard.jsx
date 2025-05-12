@@ -19,5 +19,4 @@ const OwnerDashboard = () => {
     </div>
   );
 };
-
 export default OwnerDashboard;

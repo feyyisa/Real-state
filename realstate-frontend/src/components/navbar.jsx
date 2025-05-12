@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+import UserDropdown from "./UserProfile"; 
 export default function Navbar() {
   return (
     <div className="bg-green-400 p-2">
@@ -19,12 +19,9 @@ export default function Navbar() {
         <li>
           <Link to="/contact">Contact</Link>
         </li>
-
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
-       
+        <UserDropdown />
       </ul>
+      
     </div>
   );
 }

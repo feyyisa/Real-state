@@ -7,7 +7,6 @@ const CustDashboardHeader = () => {
   const handleLogout = () => {
     logout();
   };
-
   return (
     <header className="flex justify-between items-center p-4 bg-white shadow-md">
       <div className="text-xl font-bold">Dashboard</div>

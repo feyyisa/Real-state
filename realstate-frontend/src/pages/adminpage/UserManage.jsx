@@ -1,62 +1,120 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: "", email: "", role: "" });
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "",
+  });
   const [editUser, setEditUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const history = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (token) {
+      fetchUsers();
+    }
+  }, [token]);
 
   const fetchUsers = async () => {
-    const res = await axios.get("http://localhost:5000/api/users");
-    setUsers(res.data);
-  };
-
-  const handleAddUser = async () => {
-    if (!newUser.name || !newUser.email || !newUser.role) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
     try {
-      const res = await axios.post("http://localhost:5000/api/users", newUser);
-      setUsers([...users, res.data]);
-      setNewUser({ name: "", email: "", role: "" });
+      const res = await axios.get("http://localhost:5000/api/auth", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUsers(res.data);
     } catch (err) {
-      alert("Failed to add user.");
-      console.log(err);
+      console.error("Error fetching users:", err);
     }
   };
 
-  const handleEditUser = (user) => {
-    setEditUser({ ...user });
-  };
+  const handleAddUser = async (e) => {
+  e.preventDefault();
+
+  const { name, email, phone, password, role } = newUser;
+
+  if (!name || !email || !phone || !password || !role) {
+    alert("All fields are required.");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/auth/register",
+      newUser,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 201) {
+      alert("User added successfully!");
+      setUsers([...users, response.data.user]); // Make sure you access `.user` from response
+      setNewUser({
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        role: "",
+      });
+    }
+  } catch (err) {
+    console.error("Error adding user:", err);
+    const errorMsg = err.response?.data?.message || "Error adding user. Please try again.";
+    alert(errorMsg);
+  }
+};
+
 
   const handleSaveEdit = async () => {
-    if (!editUser.name || !editUser.email || !editUser.role) {
-      alert("All fields are required.");
+    const { _id, name, email, phone, role } = editUser;
+
+    if (!name || !email || !phone || !role) {
+      alert("All fields except password are required.");
       return;
     }
 
+    const updatedData = { name, email, phone, role };
+
+    // Include password only if user added it during edit
+    if (editUser.password && editUser.password.trim() !== "") {
+      updatedData.password = editUser.password;
+    }
+
     try {
-      const res = await axios.put(`http://localhost:5000/api/users/${editUser._id}`, editUser);
-      const updatedUsers = users.map((u) =>
-        u._id === editUser._id ? res.data : u
+      const res = await axios.put(
+        `http://localhost:5000/api/auth/${_id}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+      const updatedUsers = users.map((u) => (u._id === _id ? res.data : u));
       setUsers(updatedUsers);
       setEditUser(null);
     } catch (err) {
       alert("Update failed.");
-      console.log(err);
+      console.error(err);
     }
   };
 
   const handleRemoveUser = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${id}`);
+      await axios.delete(`http://localhost:5000/api/auth/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setUsers(users.filter((user) => user._id !== id));
     } catch (err) {
       alert("Delete failed.");
@@ -86,13 +144,27 @@ const ManageUsers = () => {
             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
             className="p-2 border rounded w-full"
           />
+          <input
+            type="text"
+            placeholder="Phone"
+            value={newUser.phone}
+            onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+            className="p-2 border rounded w-full"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={newUser.password}
+            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+            className="p-2 border rounded w-full"
+          />
           <select
             value={newUser.role}
             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
             className="p-2 border rounded w-full"
           >
             <option value="">Select Role</option>
-            <option value="Admin">Admin</option>
+            <option value="admin">admin</option>
             <option value="owner">owner</option>
             <option value="customer">customer</option>
           </select>
@@ -124,9 +196,7 @@ const ManageUsers = () => {
                     <input
                       type="text"
                       value={editUser.name}
-                      onChange={(e) =>
-                        setEditUser({ ...editUser, name: e.target.value })
-                      }
+                      onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
                       className="p-1 border rounded"
                     />
                   ) : (
@@ -138,9 +208,7 @@ const ManageUsers = () => {
                     <input
                       type="email"
                       value={editUser.email}
-                      onChange={(e) =>
-                        setEditUser({ ...editUser, email: e.target.value })
-                      }
+                      onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
                       className="p-1 border rounded"
                     />
                   ) : (
@@ -151,14 +219,12 @@ const ManageUsers = () => {
                   {editUser?._id === user._id ? (
                     <select
                       value={editUser.role}
-                      onChange={(e) =>
-                        setEditUser({ ...editUser, role: e.target.value })
-                      }
+                      onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
                       className="p-1 border rounded"
                     >
                       <option value="Admin">Admin</option>
-                      <option value="owner">owner</option>
-                      <option value="customer">customer</option>
+                      <option value="Owner">Owner</option>
+                      <option value="Customer">Customer</option>
                     </select>
                   ) : (
                     user.role
@@ -183,14 +249,14 @@ const ManageUsers = () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => handleEditUser(user)}
+                        onClick={() => setEditUser(user)}
                         className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleRemoveUser(user._id)}
-                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                       >
                         Remove
                       </button>

@@ -1,17 +1,20 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const token = localStorage.getItem('token');
 
-  if (loading) return <div>Loading...</div>;
-  if (!user) {
-    navigate('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (!token) {
+      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+navigate('/login');
 
-  return children;
+    }
+  }, [token, navigate, location]);
+
+  return token ? children : null;
 };
 
 export default ProtectedRoute;

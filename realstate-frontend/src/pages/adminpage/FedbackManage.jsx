@@ -1,44 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const FeedbackManage = () => {
-  // Sample feedback data
-  const [feedbackList, setFeedbackList] = useState([
-    {
-      id: 1,
-      user: "John Doe",
-      email: "john@example.com",
-      message: "Great service! Keep it up.",
-      response: "",
-    },
-    {
-      id: 2,
-      user: "Jane Smith",
-      email: "jane@example.com",
-      message: "The app is slow and needs improvement.",
-      response: "",
-    },
-    {
-      id: 3,
-      user: "Alice Johnson",
-      email: "alice@example.com",
-      message: "Loving the new features!",
-      response: "",
-    },
-  ]);
+  const [feedbackList, setFeedbackList] = useState([]);
+  const [responses, setResponses] = useState({}); // Stores response input by id
 
-  // State for managing the response input
-  const [responseInput, setResponseInput] = useState("");
+  // Fetch feedback from backend
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/feedback/all");
+        setFeedbackList(res.data);
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      }
+    };
+    fetchFeedback();
+  }, []);
 
-  // Function to handle responding to feedback
-  const handleRespond = (id) => {
-    if (responseInput.trim()) {
-      const updatedFeedback = feedbackList.map((feedback) =>
-        feedback.id === id
-          ? { ...feedback, response: responseInput }
-          : feedback
+  // Handle input change for response field
+  const handleInputChange = (id, value) => {
+    setResponses({ ...responses, [id]: value });
+  };
+
+  // Submit response to backend
+  const handleRespond = async (id) => {
+    const response = responses[id];
+    if (!response?.trim()) return;
+
+    try {
+      await axios.put(`http://localhost:5000/api/feedback/respond/${id}`, {
+        response,
+      });
+
+      const updated = feedbackList.map((f) =>
+        f._id === id ? { ...f, response } : f
       );
-      setFeedbackList(updatedFeedback);
-      setResponseInput("");
+      setFeedbackList(updated);
+      setResponses((prev) => ({ ...prev, [id]: "" }));
+    } catch (err) {
+      console.error("Response Error:", err);
+    }
+  };
+
+  // Delete feedback
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/feedback/delete/${id}`);
+      setFeedbackList((prev) => prev.filter((f) => f._id !== id));
+    } catch (err) {
+      console.error("Delete Error:", err);
     }
   };
 
@@ -47,54 +58,59 @@ const FeedbackManage = () => {
       <h1 className="text-2xl font-bold mb-4">Manage Feedback</h1>
       <p className="mb-4">Here you can view and respond to user feedback.</p>
 
-      {/* Feedback Table */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Feedback List</h2>
-        <table className="w-full border-collapse border">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 border">User</th>
-              <th className="p-2 border">Email</th>
-              <th className="p-2 border">Message</th>
-              <th className="p-2 border">Response</th>
-              <th className="p-2 border">Actions</th>
+      <table className="w-full border-collapse border">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-2 border">User</th>
+            <th className="p-2 border">Email</th>
+            <th className="p-2 border">Message</th>
+            <th className="p-2 border">Response</th>
+            <th className="p-2 border">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {feedbackList.map((feedback) => (
+            <tr key={feedback._id} className="border">
+              <td className="p-2 border">{feedback.name}</td>
+              <td className="p-2 border">{feedback.email}</td>
+              <td className="p-2 border">{feedback.message}</td>
+              <td className="p-2 border">
+                {feedback.response ? (
+                  feedback.response
+                ) : (
+                  <input
+                    type="text"
+                    value={responses[feedback._id] || ""}
+                    onChange={(e) =>
+                      handleInputChange(feedback._id, e.target.value)
+                    }
+                    placeholder="Type your response..."
+                    className="p-1 border rounded w-full"
+                  />
+                )}
+              </td>
+              <td className="p-2 border flex space-x-2">
+                {!feedback.response && (
+                  <button
+                    onClick={() => handleRespond(feedback._id)}
+                    className="bg-blue-500 text-white px-2 py-1 rounded"
+                  >
+                    Respond
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(feedback._id)}
+                  className="bg-red-500 text-white px-2 py-1 rounded"
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {feedbackList.map((feedback) => (
-              <tr key={feedback.id} className="border">
-                <td className="p-2 border">{feedback.user}</td>
-                <td className="p-2 border">{feedback.email}</td>
-                <td className="p-2 border">{feedback.message}</td>
-                <td className="p-2 border">
-                  {feedback.response ? (
-                    feedback.response
-                  ) : (
-                    <input
-                      type="text"
-                      placeholder="Type your response..."
-                      value={responseInput}
-                      onChange={(e) => setResponseInput(e.target.value)}
-                      className="p-1 border rounded w-full"
-                    />
-                  )}
-                </td>
-                <td className="p-2 border">
-                  {!feedback.response && (
-                    <button
-                      onClick={() => handleRespond(feedback.id)}
-                      className="bg-blue-500 text-white p-1 rounded"
-                    >
-                      Respond
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
+
 export default FeedbackManage;

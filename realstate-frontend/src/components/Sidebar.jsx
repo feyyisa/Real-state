@@ -30,7 +30,13 @@ const Sidebar = () => {
           to="managefedback"
           className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
         >
-          Manage Feedback
+          Manage Feedback  
+        </Link>
+        <Link
+          to="analythicsdashboard"
+          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+        >
+          analythicsdashboard
         </Link>
       </nav>
     </div>

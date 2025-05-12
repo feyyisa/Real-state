@@ -1,15 +1,15 @@
 // src/services/api.js
 import axios from 'axios';
 
-// 1. Create Axios instance with your backend base URL
+// ✅ Create Axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Your backend URL
+  baseURL: 'http://localhost:5000/api', // Use general API base
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
-// 2. Add request interceptor for JWT tokens
+// ✅ Add token to headers if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -18,17 +18,14 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// 3. Add response interceptor
+// ✅ Handle auth errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle token expiration here if needed
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
