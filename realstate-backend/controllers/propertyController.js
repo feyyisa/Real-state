@@ -210,9 +210,26 @@ const deletePropertyById = async (req, res) => {
   }
 };
 
+// Get properties by approval status
+const getPropertiesByApprovalStatus = async (req, res) => {
+  try {
+    const { approvalStatus } = req.params; // Extract the approval status from the request params
+
+    const properties = await Property.find({ approvalStatus }); // Find properties with the specified approval status
+
+    if (properties.length === 0) {
+      return res.status(404).json({ message: 'No properties found with this approval status' });
+    }
+
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('Error fetching properties by approval status:', error);
+    res.status(500).json({ message: 'Error fetching properties by approval status', error: error.message });
+  }
+};
+
 module.exports = {
   createProperty,
-  approveOrRejectProperty,
   getAllProperties,
   getPropertyById,
   getPropertiesByOwnerId,
@@ -222,4 +239,6 @@ module.exports = {
   getPropertiesByBathrooms,
   updatePropertyById,
   deletePropertyById,
+  approveOrRejectProperty,
+  getPropertiesByApprovalStatus,
 };
