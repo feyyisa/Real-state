@@ -32,7 +32,6 @@ exports.registerUser = async (req, res) => {
       password: hashedPassword,
       phone,
       role,
-      propertyCount: role === 'owner' ? 0 : undefined,
     });
 
     console.log('Saving user...');

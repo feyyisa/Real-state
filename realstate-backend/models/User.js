@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'admin', 'owner'],
     default: 'customer'
   },
-  propertyCount: { type: Number, default: 0 }, // Only used for owners
   createdAt: { type: Date, default: Date.now }
 });
 

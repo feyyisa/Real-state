@@ -17,42 +17,46 @@ const Login = () => {
     setError('');
 
     try {
+      console.log('Submitting login with:', formData);
+
       const result = await authService.login(formData);
+      console.log('Login result:', result);
 
-      if (result.success && result.data?.user) {
-        const userRole = result.data.user.role;
-        const token = result.data.token;
+      // Check for nested response if using Axios (e.g., result.data)
+      const data = result.data || result;
 
-        // Save token and role
+      if (data.token && data.user) {
+        const { token, user } = data;
+
+        console.log('Login successful!');
+        console.log('User Role:', user.role);
+        console.log('JWT Token:', token);
+
+        // Save token and role to localStorage
         localStorage.setItem('token', token);
-        localStorage.setItem('role', userRole);
+        localStorage.setItem('role', user.role);
 
-        // Redirect to previously attempted route if exists
-        const redirectPath = localStorage.getItem('redirectAfterLogin');
-        localStorage.removeItem('redirectAfterLogin');
-
-        if (redirectPath) {
-          navigate(redirectPath);
-        } else {
-          switch (userRole) {
-            case 'admin':
-              navigate('/dashboard');
-              break;
-            case 'owner':
-              navigate('/owner/ownerdashboard');
-              break;
-            case 'customer':
-              navigate('/paymentpage');
-              break;
-            default:
-              setError('Unknown role, cannot navigate.');
-          }
+        // Redirect based on role
+        switch (user.role) {
+          case 'admin':
+            navigate('/admin/dashboard');
+            break;
+          case 'owner':
+            navigate('/owner/dashboard');
+            break;
+          case 'customer':
+            navigate('/');
+            break;
+          default:
+            console.warn('Unknown role:', user.role);
+            setError('Unknown role, cannot navigate.');
         }
       } else {
-        setError(result.message || 'Login failed');
+        console.warn('Login failed response:', data);
+        setError(data.message || 'Login failed');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Login error caught in catch block:', err);
       setError('Something went wrong. Try again later.');
     }
   };

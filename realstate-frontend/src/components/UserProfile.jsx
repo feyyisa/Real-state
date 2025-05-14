@@ -46,18 +46,18 @@ export default function UserDropdown() {
 
   if (!user) return null;
 
+  const getInitial = (name) => {
+    return name?.trim().charAt(0).toUpperCase() || "?";
+  };
+
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      <img
+      <div
         onClick={toggleDropdown}
-        className="w-10 h-10 rounded-full border-2 cursor-pointer"
-        src={user?.avatar || "/images/default-avatar.png"}
-        alt="User avatar"
-        onError={(e) => {
-          e.target.onerror = null;
-          e.target.src = "/images/default-avatar.png";
-        }}
-      />
+        className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-green-600 font-bold border-2 border-green-600 cursor-pointer"
+      >
+        {getInitial(user.username || user.name || "User")}
+      </div>
 
       {isOpen && (
         <div className="absolute right-0 z-20 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-700">

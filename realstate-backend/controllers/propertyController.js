@@ -1,46 +1,49 @@
+const fs = require("fs");
+const path = require("path");
 const Property = require("../models/Property");
 const mongoose = require("mongoose");
 
-// Create Property
+// Create property
 const createProperty = async (req, res) => {
   try {
     let {
       title,
       description,
-      propertyType,
       listingType,
       price,
       size,
       bedrooms,
       bathrooms,
-      location,
-      amenities,
       yearBuilt,
       condition,
       status,
       availableFrom,
       features,
-      owner, // incoming ownerId
+      amenities,
+      location,
+      owner
     } = req.body;
 
-    // Check for valid owner
-   if (!owner || !mongoose.Types.ObjectId.isValid(owner)) {
-
+    // Validate owner
+    if (!owner || !mongoose.Types.ObjectId.isValid(owner)) {
       return res.status(400).json({ message: "Valid owner ID is required." });
     }
 
-    // Parse complex fields if sent as JSON strings
+    // Parse JSON fields if sent as strings
     if (typeof location === "string") location = JSON.parse(location);
     if (typeof amenities === "string") amenities = JSON.parse(amenities);
     if (typeof features === "string") features = JSON.parse(features);
 
-    // Handle image upload
-    const image = req.file?.filename;
+    // Extract file uploads
+    const profileImage = req.files?.profileImage?.[0]?.filename || null;
+    const bedroomImage = req.files?.bedroomImage?.[0]?.filename || null;
+    const bathroomImage = req.files?.bathroomImage?.[0]?.filename || null;
+    const otherImage = req.files?.otherImage?.[0]?.filename || null;
+    const ownershipDocument = req.files?.ownershipDocument?.[0]?.filename || null;
 
     const newProperty = new Property({
       title,
       description,
-      propertyType,
       listingType,
       price,
       size,
@@ -53,8 +56,12 @@ const createProperty = async (req, res) => {
       features,
       amenities,
       location,
-      image,
-      owner,
+      profileImage,
+      bedroomImage,
+      bathroomImage,
+      otherImage,
+      ownershipDocument,
+      owner
     });
 
     await newProperty.save();
@@ -62,6 +69,35 @@ const createProperty = async (req, res) => {
   } catch (error) {
     console.error("Error creating property:", error);
     res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+// Approve or reject property
+const approveOrRejectProperty = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { approvalStatus, rejectionReason } = req.body;
+
+    if (!["approved", "rejected"].includes(approvalStatus)) {
+      return res.status(400).json({ message: "Invalid approval status." });
+    }
+
+    const update = { approvalStatus };
+    if (approvalStatus === "rejected") {
+      if (!rejectionReason) {
+        return res.status(400).json({ message: "Rejection reason is required when rejecting a property." });
+      }
+      update.rejectionReason = rejectionReason;
+    } else {
+      update.rejectionReason = null;
+    }
+
+    const updated = await Property.findByIdAndUpdate(id, update, { new: true });
+    if (!updated) return res.status(404).json({ message: "Property not found" });
+
+    res.status(200).json({ message: `Property ${approvalStatus}`, property: updated });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating approval status", error });
   }
 };
 
@@ -96,7 +132,7 @@ const getPropertiesByOwnerId = async (req, res) => {
   }
 };
 
-// Get properties by status
+// Get properties by status (available/booked)
 const getPropertiesByStatus = async (req, res) => {
   try {
     const properties = await Property.find({ status: req.params.status });
@@ -106,7 +142,7 @@ const getPropertiesByStatus = async (req, res) => {
   }
 };
 
-// Get properties by listing type
+// Get properties by listing type (rent/sell)
 const getPropertiesByListingType = async (req, res) => {
   try {
     const properties = await Property.find({ listingType: req.params.listingType });
@@ -116,7 +152,7 @@ const getPropertiesByListingType = async (req, res) => {
   }
 };
 
-// Get properties by number of bedrooms
+// Get properties by bedrooms
 const getPropertiesByBedrooms = async (req, res) => {
   try {
     const properties = await Property.find({ bedrooms: Number(req.params.bedrooms) });
@@ -126,7 +162,7 @@ const getPropertiesByBedrooms = async (req, res) => {
   }
 };
 
-// Get properties by number of bathrooms
+// Get properties by bathrooms
 const getPropertiesByBathrooms = async (req, res) => {
   try {
     const properties = await Property.find({ bathrooms: Number(req.params.bathrooms) });
@@ -139,16 +175,19 @@ const getPropertiesByBathrooms = async (req, res) => {
 // Update property
 const updatePropertyById = async (req, res) => {
   try {
-    const updatedFields = req.body;
+    let updatedFields = req.body;
 
-    // Parse if needed
+    // Parse fields if they are strings
     if (typeof updatedFields.location === "string") updatedFields.location = JSON.parse(updatedFields.location);
     if (typeof updatedFields.amenities === "string") updatedFields.amenities = JSON.parse(updatedFields.amenities);
     if (typeof updatedFields.features === "string") updatedFields.features = JSON.parse(updatedFields.features);
 
-    if (req.file?.filename) {
-      updatedFields.image = req.file.filename;
-    }
+    // Check for uploaded files and update the fields
+    if (req.files?.profileImage) updatedFields.profileImage = req.files.profileImage[0].filename;
+    if (req.files?.bedroomImage) updatedFields.bedroomImage = req.files.bedroomImage[0].filename;
+    if (req.files?.bathroomImage) updatedFields.bathroomImage = req.files.bathroomImage[0].filename;
+    if (req.files?.otherImage) updatedFields.otherImage = req.files.otherImage[0].filename;
+    if (req.files?.ownershipDocument) updatedFields.ownershipDocument = req.files.ownershipDocument[0].filename;
 
     const updatedProperty = await Property.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
     if (!updatedProperty) return res.status(404).json({ message: "Property not found" });
@@ -173,6 +212,7 @@ const deletePropertyById = async (req, res) => {
 
 module.exports = {
   createProperty,
+  approveOrRejectProperty,
   getAllProperties,
   getPropertyById,
   getPropertiesByOwnerId,

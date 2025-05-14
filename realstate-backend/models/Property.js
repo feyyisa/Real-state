@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const propertySchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
-  propertyType: String,
   listingType: { type: String, enum: ["rent", "sell"] },
   price: { type: Number, required: true },
   size: Number,
@@ -22,20 +21,23 @@ const propertySchema = new mongoose.Schema({
     security: Boolean,
   },
   location: {
-    address: String,
+    region: String,
     city: String,
-    latitude: Number,
-    longitude: Number,
+    kifleKetemaOrKebelle: String,
   },
+  profileImage: { type: String },
+  bedroomImage: { type: String },
+  bathroomImage: { type: String },
+  otherImage: { type: String },
+  approvalStatus: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+  rejectionReason: { type: String },
+  ownershipDocument: { type: String },
   views: { type: Number, default: 0 },
-  image: { type: String },
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
   inquiries: { type: Number, default: 0 },
   acceptedBookings: { type: Number, default: 0 },
   earnings: { type: Number, default: 0 },
-  createdAt: { type: Date, default: Date.now },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  createdAt: { type: Date, default: Date.now }
 }, { timestamps: true });
+
 module.exports = mongoose.models.property || mongoose.model('property', propertySchema);
-
-
-

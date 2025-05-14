@@ -1,20 +1,9 @@
-// models/Booking.js
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
   property: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Properties",
-    required: true
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
-    required: true
-  },
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
+    ref: "property",
     required: true
   },
   bookingDate: {
@@ -25,18 +14,6 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     enum: ['rent', 'sell'],
     required: true
-  },
-  startDate: {
-    type: Date,
-    required: function () {
-      return this.type === 'rent';
-    }
-  },
-  endDate: {
-    type: Date,
-    required: function () {
-      return this.type === 'rent';
-    }
   },
   status: {
     type: String,
@@ -55,6 +32,15 @@ const bookingSchema = new mongoose.Schema({
   paymentReceipt: {
     type: String,
     required: true
+  },
+  bookedBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true
+  },
+  bookerIdCardFile: { 
+    type: String,
+    required: true 
   }
 }, { timestamps: true });
 

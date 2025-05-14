@@ -32,12 +32,11 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const [imageFiles, setImageFiles] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // Check if user is logged in (from localStorage)
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem('user'));
     if (loggedInUser) {
@@ -46,9 +45,9 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
     }
   }, []);
 
-  // Handle form field changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+
     if (name.startsWith('location.')) {
       setFormData((prev) => ({
         ...prev,
@@ -57,81 +56,66 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
     } else if (name.startsWith('amenities.')) {
       setFormData((prev) => ({
         ...prev,
-        amenities: { ...prev.amenities, [name.split('.')[1]]: value },
+        amenities: {
+          ...prev.amenities,
+          [name.split('.')[1]]: type === 'checkbox' ? checked : value,
+        },
       }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // Handle amenities checkbox changes
-  const handleAmenityChange = (e) => {
-    const { name, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      amenities: { ...prev.amenities, [name]: checked },
-    }));
-  };
-
-  // Handle file input change
   const handleFileChange = (e) => {
-    setImageFiles(e.target.files);
+    setImageFile(e.target.files[0]);
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!user) {
-      // Redirect to login page if not logged in
       navigate('/login');
       return;
     }
 
+    if (!imageFile) {
+      alert("Please select an image file.");
+      return;
+    }
+
     setIsSubmitting(true);
+
     const data = new FormData();
-
-    // Append form fields to FormData
-    Object.entries(formData).forEach(([key, value]) => {
-      if (typeof value === 'object' && !(value instanceof File)) {
-        if (key === 'location' || key === 'amenities') {
-          data.append(key, JSON.stringify(value));
-        } else {
-          data.append(key, value);
-        }
-      } else {
-        data.append(key, value);
-      }
-    });
-
-    // Append image files to FormData
-    Array.from(imageFiles).forEach((file) => {
-      data.append('propertyImages', file); // 'propertyImages' is the field for image upload
-    });
+    data.append('image', imageFile);
+    data.append('owner', formData.owner);
+    data.append('title', formData.title);
+    data.append('description', formData.description);
+    data.append('propertyType', formData.propertyType);
+    data.append('listingType', formData.listingType);
+    data.append('price', formData.price);
+    data.append('size', formData.size);
+    data.append('bedrooms', formData.bedrooms);
+    data.append('bathrooms', formData.bathrooms);
+    data.append('yearBuilt', formData.yearBuilt);
+    data.append('condition', formData.condition);
+    data.append('status', formData.status);
+    data.append('availableFrom', formData.availableFrom);
+    data.append('location', JSON.stringify(formData.location));
+    data.append('amenities', JSON.stringify(formData.amenities));
 
     try {
-      const response = await axios.post('http://localhost:5000/api/properties', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${user.token}`,
-        },
-      });
-      alert('✅ Property added successfully!');
-      setFormData({ ...initialFormState, owner: user._id });
-      setImageFiles([]);
+      await axios.post('/api/properties', data);
       if (onPropertyAdded) onPropertyAdded();
-    } catch (err) {
-      console.error('❌ Error:', err.response?.data || err.message);
-      alert(`❌ Failed to add property: ${err.response?.data?.message || err.message}`);
+      setFormData(initialFormState);
+      setImageFile(null);
+      navigate('/properties');
+    } catch (error) {
+      console.error("Error submitting property:", error.response?.data || error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Property types and options
   const propertyTypes = ['apartment', 'house', 'villa', 'townhouse', 'commercial'];
   const listingTypes = ['rent', 'sell'];
   const conditionOptions = ['new', 'good', 'fair', 'poor'];
@@ -170,6 +154,7 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
           />
         </div>
 
+        {/* Basic Fields */}
         <div>
           <label className="block text-sm font-medium">Property Type*</label>
           <select
@@ -250,6 +235,7 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
           />
         </div>
 
+        {/* Location */}
         <div>
           <label className="block text-sm font-medium">Address</label>
           <input
@@ -290,20 +276,22 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
           />
         </div>
 
+        {/* Amenities */}
         <div className="col-span-2 flex flex-wrap gap-4">
-          {Object.keys(formData.amenities).map((amenity) => (
-            <label key={amenity} className="flex items-center space-x-2">
+          {Object.keys(formData.amenities).map((key) => (
+            <label key={key} className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                name={amenity}
-                checked={formData.amenities[amenity]}
-                onChange={handleAmenityChange}
+                name={`amenities.${key}`}
+                checked={formData.amenities[key]}
+                onChange={handleChange}
               />
-              <span className="capitalize">{amenity}</span>
+              <span>{key}</span>
             </label>
           ))}
         </div>
 
+        {/* Additional Fields */}
         <div>
           <label className="block text-sm font-medium">Year Built</label>
           <input
@@ -316,7 +304,7 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Condition*</label>
+          <label className="block text-sm font-medium">Condition</label>
           <select
             name="condition"
             value={formData.condition}
@@ -332,7 +320,7 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Status*</label>
+          <label className="block text-sm font-medium">Status</label>
           <select
             name="status"
             value={formData.status}
@@ -358,11 +346,12 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
           />
         </div>
 
+        {/* Image Upload */}
         <div>
-          <label className="block text-sm font-medium">Property Images</label>
+          <label className="block text-sm font-medium">Property Image</label>
           <input
             type="file"
-            multiple
+            name="image"
             accept="image/*"
             onChange={handleFileChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
@@ -370,13 +359,16 @@ const AddPropertyForm = ({ ownerId, onPropertyAdded }) => {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="w-full mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? 'Adding Property...' : 'Add Property'}
-      </button>
+      {/* Submit */}
+      <div className="mt-6 text-center">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Property'}
+        </button>
+      </div>
     </form>
   );
 };
