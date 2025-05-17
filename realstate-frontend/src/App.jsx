@@ -29,6 +29,7 @@ import FeedbackList from './pages/adminpage/FeedbackList';
 
 // Owner Pages
 import AddPropertyForm from './pages/owner/AddPropertyForm';
+import EditPropertyForm from './pages/owner/EditPropertyForm';
 import OwnerDashboard from './pages/owner/OwnerDashboard';
 import PropertySearch from './pages/owner/PropertySearch';
 import OwnerPropertyManager from './pages/owner/OwnerPropertyManager';
@@ -106,6 +107,16 @@ function AppContent() {
             <ProtectedRoute allowedRoles={['owner']}>
               <OwnerLayout>
                 <AddPropertyForm />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner/editpropertyform/:id"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <EditPropertyForm />
               </OwnerLayout>
             </ProtectedRoute>
           }
