@@ -20,11 +20,9 @@ import BookingHouse from './pages/costumer/BookingHouse';
 
 // Admin Pages
 import Dashboard from './pages/adminpage/Dashboard';
-import OwnerManage from './pages/adminpage/OwnerManage';
 import UserManage from './pages/adminpage/UserManage';
 import PropertyManage from './pages/adminpage/PropertyManage';
 import FedbackManage from './pages/adminpage/FedbackManage';
-import AnalyticsDashboard from './pages/adminpage/AnalyticsDashboard';
 import FeedbackList from './pages/adminpage/FeedbackList';
 
 // Owner Pages
@@ -49,6 +47,8 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import BookingSummary from './components/BookingSummary';
 import FAQPage from './components/FAQPage';
 import OwnerLayout from './components/OwnerLayout';
+import AdminLayout from './components/AdminLayout';
+
 function AppContent() {
   return (
     <>
@@ -81,13 +81,51 @@ function AppContent() {
           <Route path="costumer" element={<Payment />} />
           <Route path="feedbackform" element={<FeedbackForm />} />
         </Route>
-        {/* 🔒 Admin Protected Routes */}
-        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin/manageuser" element={<ProtectedRoute allowedRoles={['admin']}><UserManage /></ProtectedRoute>} />
-        <Route path="/admin/manageproperty" element={<ProtectedRoute allowedRoles={['admin']}><PropertyManage /></ProtectedRoute>} />
-        <Route path="/admin/managefedback" element={<ProtectedRoute allowedRoles={['admin']}><FedbackManage /></ProtectedRoute>} />
-        <Route path="/admin/admin/ownermanage" element={<ProtectedRoute allowedRoles={['admin']}><OwnerManage /></ProtectedRoute>} />
-        <Route path="/admin/analythicsdashboard" element={<ProtectedRoute allowedRoles={['admin']}><AnalyticsDashboard /></ProtectedRoute>} />
+
+      {/* 🔒 Admin Protected Routes */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminLayout>
+              <Dashboard />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/manageuser"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminLayout>
+              <UserManage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/manageproperty"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminLayout>
+              <PropertyManage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/managefedback"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminLayout>
+              <FedbackManage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
 
 
         {/* 🔒 Owner Protected Routes, manually wrapped with OwnerLayout */}

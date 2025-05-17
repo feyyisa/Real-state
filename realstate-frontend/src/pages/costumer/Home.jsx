@@ -57,7 +57,7 @@ const Home = () => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${SERVER_URL}/customer/properties`);
+        const res = await axios.get(`${SERVER_URL}/api/properties/customer/properties`);
         const data = res.data;
         const normalized = Array.isArray(data)
           ? data

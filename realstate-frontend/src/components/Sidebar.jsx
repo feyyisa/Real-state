@@ -1,7 +1,16 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
+  const location = useLocation();
+
+  // Utility function to check if a link is active
+  const isActive = (path) => location.pathname === path;
+
+  // Tailwind classes for active/inactive links
+  const baseClass = "block py-2.5 px-4 rounded transition duration-200";
+  const activeClass = "bg-gray-900 font-semibold";
+  const inactiveClass = "hover:bg-gray-700";
+
   return (
     <div className="bg-gray-800 text-white w-64 space-y-6 py-7 px-2">
       <div className="text-white flex items-center space-x-2 px-4">
@@ -9,34 +18,28 @@ const Sidebar = () => {
       </div>
       <nav>
         <Link
-          to="/admin/dashboard/admin/ownermanage"
-          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+          to="/admin/dashboard"
+          className={`${baseClass} ${isActive("/admin/dashboard") ? activeClass : inactiveClass}`}
         >
-          Manage Owners
+          Dashboard
         </Link>
         <Link
-          to="/admin/dashboard/admin/manageuser"
-          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+          to="/admin/manageuser"
+          className={`${baseClass} ${isActive("/admin/manageuser") ? activeClass : inactiveClass}`}
         >
           Manage Users
         </Link>
         <Link
-          to="/admin/dashboard/admin/manageproperty"
-          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+          to="/admin/manageproperty"
+          className={`${baseClass} ${isActive("/admin/manageproperty") ? activeClass : inactiveClass}`}
         >
           Manage Properties
         </Link>
         <Link
-          to="/admin/dashboard/admin/managefedback"
-          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+          to="/admin/managefedback"
+          className={`${baseClass} ${isActive("/admin/managefedback") ? activeClass : inactiveClass}`}
         >
-          Manage Feedback  
-        </Link>
-        <Link
-          to="/admin/dashboard/admin/analythicsdashboard"
-          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-        >
-          analythicsdashboard
+          Manage Feedback
         </Link>
       </nav>
     </div>
