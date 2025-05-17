@@ -14,7 +14,8 @@ const {
   updatePropertyById,
   deletePropertyById,
   approveOrRejectProperty,
-  getPropertiesByApprovalStatus, // Import the new controller function
+  getPropertiesByApprovalStatus,
+  getPropertiesForCustomer
 } = require("../controllers/propertyController");
 
 // Multer Setup
@@ -40,6 +41,10 @@ router.post(
 
 // Route to get all properties
 router.get("/", getAllProperties);
+
+// Route to get properties for customers (only approved and available)
+router.get("/customer/properties", getPropertiesForCustomer);
+
 
 // Route to get a property by ID
 router.get("/:id", getPropertyById);

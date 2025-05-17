@@ -228,6 +228,22 @@ const getPropertiesByApprovalStatus = async (req, res) => {
   }
 };
 
+// Get properties for customers (only approved and available)
+const getPropertiesForCustomer = async (req, res) => {
+  try {
+    const properties = await Property.find({
+      approvalStatus: "approved",
+      status: "available"
+    }).populate("owner", "name email");
+
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error("Error fetching properties for customers:", error);
+    res.status(500).json({ message: "Error fetching properties for customers", error: error.message });
+  }
+};
+
+
 module.exports = {
   createProperty,
   getAllProperties,
@@ -241,4 +257,5 @@ module.exports = {
   deletePropertyById,
   approveOrRejectProperty,
   getPropertiesByApprovalStatus,
+  getPropertiesForCustomer
 };
