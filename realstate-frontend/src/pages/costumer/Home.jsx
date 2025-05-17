@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import villaImage from "../../assets/villa2.webp";
 import FeedbackForm from "./FeedbackForm";
 import { useNavigate } from "react-router-dom";
+import { MdOutlineKingBed, MdOutlineBathtub, MdDateRange } from 'react-icons/md';
 
 // Ethiopian regions and sample cities
 const ethiopianRegions = [
@@ -277,15 +278,11 @@ const Home = () => {
                         {property.size} sqm
                       </div>
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm4 0h2v2h-2V5zm-4 4h2v2H7V9zm4 0h2v2h-2V9zm-4 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
-                        </svg>
+                        <MdOutlineKingBed className="h-5 w-5"/>
                         {property.bedrooms || 0} Beds
                       </div>
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm4 0h2v2h-2V5zm-4 4h2v2H7V9zm4 0h2v2h-2V9zm-4 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
-                        </svg>
+                        <MdOutlineBathtub className="h-5 w-5"/>
                         {property.bathrooms || 0} Baths
                       </div>
                     </div>
