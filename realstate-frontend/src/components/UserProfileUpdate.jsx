@@ -12,19 +12,19 @@ const UserProfile = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    // Fetch logged-in user data from the server using the stored JWT token
     const fetchUserData = async () => {
       try {
-        const { data } = await axios.get('/api/users/profile', {
+        const { data } = await axios.get('/api/auth/profile', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Assuming token is stored in localStorage
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+
         setUser({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          password: '', // Don’t show the password
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          password: '', // Don't show the password
         });
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -49,7 +49,7 @@ const UserProfile = () => {
 
     try {
       const { data } = await axios.put(
-        '/api/users/profile',
+        '/api/auth/update',
         user,
         {
           headers: {
@@ -57,10 +57,10 @@ const UserProfile = () => {
           },
         }
       );
-      setMessage(data.message);
+      setMessage(data.message || 'Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
-      setMessage('Failed to update profile');
+      setMessage(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -88,7 +88,7 @@ const UserProfile = () => {
             name="email"
             value={user.email}
             onChange={handleChange}
-            disabled
+            required
           />
         </label>
         <label>
@@ -108,6 +108,7 @@ const UserProfile = () => {
             name="password"
             value={user.password}
             onChange={handleChange}
+            placeholder="Leave blank to keep current password"
           />
         </label>
         <button type="submit" disabled={loading}>
@@ -117,4 +118,5 @@ const UserProfile = () => {
     </div>
   );
 };
+
 export default UserProfile;

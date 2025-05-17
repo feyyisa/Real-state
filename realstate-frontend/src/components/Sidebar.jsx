@@ -9,31 +9,31 @@ const Sidebar = () => {
       </div>
       <nav>
         <Link
-          to="ownermanage"
+          to="/admin/dashboard/admin/ownermanage"
           className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
         >
           Manage Owners
         </Link>
         <Link
-          to="manageuser"
+          to="/admin/dashboard/admin/manageuser"
           className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
         >
           Manage Users
         </Link>
         <Link
-          to="manageproperty"
+          to="/admin/dashboard/admin/manageproperty"
           className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
         >
           Manage Properties
         </Link>
         <Link
-          to="managefedback"
+          to="/admin/dashboard/admin/managefedback"
           className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
         >
           Manage Feedback  
         </Link>
         <Link
-          to="analythicsdashboard"
+          to="/admin/dashboard/admin/analythicsdashboard"
           className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
         >
           analythicsdashboard

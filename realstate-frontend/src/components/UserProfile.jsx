@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import UserProfileUpdate from "./UserProfileUpdate";
+import UserProfile from './UserProfileUpdate';
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);

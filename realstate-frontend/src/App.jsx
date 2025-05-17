@@ -45,7 +45,9 @@ import Checkout from './components/Checkout';
 import MyMessege from './components/MyMessege';
 import SocialMediaShare from './components/SocialMediaShare';
 import LanguageSwitcher from './components/LanguageSwitcher';
-
+import BookingSummary from './components/BookingSummary';
+import FAQPage from './components/FAQPage';
+import OwnerLayout from './components/OwnerLayout';
 function AppContent() {
   return (
     <>
@@ -60,9 +62,10 @@ function AppContent() {
         <Route path="/pricing" element={<><Navbar /><LanguageSwitcher /><Pricing /></>} />
         <Route path="/service" element={<><Navbar /><LanguageSwitcher /><Service /></>} />
         <Route path="/about" element={<><Navbar /><LanguageSwitcher /><About /></>} />
+        <Route path="/faq" element={<><Navbar /><LanguageSwitcher /><FAQPage /></>} />
 
         {/* 🔒  Customer Protected Routes */}
-
+        <Route path="/bookingSummary" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingSummary /></ProtectedRoute>} />
         <Route path="/socialmedia" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><SocialMediaShare /></ProtectedRoute>} />
         <Route path="/userprofileupdate" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><UserProfileUpdate /></ProtectedRoute>} />
         <Route path="/payment" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><Payment /></ProtectedRoute>} />
@@ -77,23 +80,77 @@ function AppContent() {
           <Route path="costumer" element={<Payment />} />
           <Route path="feedbackform" element={<FeedbackForm />} />
         </Route>
-
-
         {/* 🔒 Admin Protected Routes */}
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><Dashboard /></ProtectedRoute>} />
         <Route path="/admin/manageuser" element={<ProtectedRoute allowedRoles={['admin']}><UserManage /></ProtectedRoute>} />
         <Route path="/admin/manageproperty" element={<ProtectedRoute allowedRoles={['admin']}><PropertyManage /></ProtectedRoute>} />
         <Route path="/admin/managefedback" element={<ProtectedRoute allowedRoles={['admin']}><FedbackManage /></ProtectedRoute>} />
-        <Route path="/admin/ownermanage" element={<ProtectedRoute allowedRoles={['admin']}><OwnerManage /></ProtectedRoute>} />
+        <Route path="/admin/admin/ownermanage" element={<ProtectedRoute allowedRoles={['admin']}><OwnerManage /></ProtectedRoute>} />
         <Route path="/admin/analythicsdashboard" element={<ProtectedRoute allowedRoles={['admin']}><AnalyticsDashboard /></ProtectedRoute>} />
 
-        {/* 🔒 Owner Protected Routes */}
-        <Route path="/owner/dashboard" element={<ProtectedRoute allowedRoles={['owner']}><OwnerDashboard /></ProtectedRoute>} />
-        <Route path="/owner/addpropertyform" element={<ProtectedRoute allowedRoles={['owner']}><AddPropertyForm /></ProtectedRoute>} />
-        <Route path="/owner/ownerpropertymanager" element={<ProtectedRoute allowedRoles={['owner']}><OwnerPropertyManager /></ProtectedRoute>} />
-        <Route path="/owner/ownerbookingmanager" element={<ProtectedRoute allowedRoles={['owner']}><OwnerBookingManager /></ProtectedRoute>} />
-        <Route path="/owner/ownerpayments" element={<ProtectedRoute allowedRoles={['owner']}><OwnerPayments /></ProtectedRoute>} />
-        <Route path="/owner/searchproperty" element={<ProtectedRoute allowedRoles={['owner']}><PropertySearch /></ProtectedRoute>} />
+
+        {/* 🔒 Owner Protected Routes, manually wrapped with OwnerLayout */}
+        <Route
+          path="/owner/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <OwnerDashboard />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner/addpropertyform"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <AddPropertyForm />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner/ownerpropertymanager"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <OwnerPropertyManager />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner/ownerbookingmanager"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <OwnerBookingManager />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner/ownerpayments"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <OwnerPayments />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/owner/searchproperty"
+          element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerLayout>
+                <PropertySearch />
+              </OwnerLayout>
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
 
       <Footer />

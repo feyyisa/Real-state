@@ -72,7 +72,6 @@ const authService = {
       if (!token) {
         return { success: false, message: 'No token found' }; // No token, not authenticated
       }
-
       // Send GET request to check authentication status
       const response = await api.get('/auth/me', {
         headers: {
@@ -94,5 +93,4 @@ const authService = {
     }
   },
 };
-
 export default authService;
