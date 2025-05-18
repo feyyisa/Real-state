@@ -1,37 +1,40 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const FAQPage = () => {
-  // Static FAQ data
+  const { t } = useTranslation();
+
+  // Static FAQ data using translations
   const faqs = [
     {
-      question: 'What is this project about?',
-      answer: 'This project is a platform where users can manage their profiles, interact with the system, and access different services offered by the platform.',
+      question: t('faq.q1.question'),
+      answer: t('faq.q1.answer'),
     },
     {
-      question: 'How can I create an account?',
-      answer: 'To create an account, simply click the "Sign Up" button on the homepage and provide your name, email, and password.',
+      question: t('faq.q2.question'),
+      answer: t('faq.q2.answer'),
     },
     {
-      question: 'How can I update my profile?',
-      answer: 'You can update your profile by visiting the Profile page and modifying your name, email, phone number, and password.',
+      question: t('faq.q3.question'),
+      answer: t('faq.q3.answer'),
     },
     {
-      question: 'How do I reset my password?',
-      answer: 'If you have forgotten your password, you can click the "Forgot Password" link on the login page and follow the instructions to reset your password.',
+      question: t('faq.q4.question'),
+      answer: t('faq.q4.answer'),
     },
     {
-      question: 'Who can access the FAQ page?',
-      answer: 'Anyone can access the FAQ page to learn more about the platform. There is no restriction based on user roles.',
+      question: t('faq.q5.question'),
+      answer: t('faq.q5.answer'),
     },
     {
-      question: 'How can I contact support?',
-      answer: 'For support, you can reach out via the "Contact Us" page or email us at support@yourproject.com.',
+      question: t('faq.q6.question'),
+      answer: t('faq.q6.answer'),
     },
   ];
 
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-3xl font-semibold text-center mb-8">Frequently Asked Questions</h2>
+      <h2 className="text-3xl font-semibold text-center mb-8">{t('faq.title')}</h2>
       <div className="space-y-6">
         {faqs.map((faq, index) => (
           <div key={index} className="bg-gray-100 p-4 rounded-md shadow-sm">
@@ -43,4 +46,5 @@ const FAQPage = () => {
     </div>
   );
 };
+
 export default FAQPage;

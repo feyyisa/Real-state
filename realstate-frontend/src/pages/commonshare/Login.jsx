@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // ✅ added
 import authService from '../../services/authService';
 
 const Login = () => {
+  const { t } = useTranslation(); // ✅ added
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -22,7 +24,6 @@ const Login = () => {
       const result = await authService.login(formData);
       console.log('Login result:', result);
 
-      // Check for nested response if using Axios (e.g., result.data)
       const data = result.data || result;
 
       if (data.token && data.user) {
@@ -32,11 +33,9 @@ const Login = () => {
         console.log('User Role:', user.role);
         console.log('JWT Token:', token);
 
-        // Save token and role to localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('role', user.role);
 
-        // Redirect based on role
         switch (user.role) {
           case 'admin':
             navigate('/admin/dashboard');
@@ -49,22 +48,22 @@ const Login = () => {
             break;
           default:
             console.warn('Unknown role:', user.role);
-            setError('Unknown role, cannot navigate.');
+            setError(t('login.errors.unknownRole'));
         }
       } else {
         console.warn('Login failed response:', data);
-        setError(data.message || 'Login failed');
+        setError(data.message || t('login.errors.failed'));
       }
     } catch (err) {
       console.error('Login error caught in catch block:', err);
-      setError('Something went wrong. Try again later.');
+      setError(t('login.errors.generic'));
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">Login</h2>
+        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">{t('login.title')}</h2>
 
         {error && (
           <div className="mb-4 text-red-600 bg-red-100 border border-red-300 px-4 py-2 rounded-lg text-sm">
@@ -74,7 +73,7 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('login.email')}</label>
             <input
               type="email"
               name="email"
@@ -86,7 +85,7 @@ const Login = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('login.password')}</label>
             <input
               type="password"
               name="password"
@@ -101,17 +100,17 @@ const Login = () => {
             type="submit"
             className="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
           >
-            Login
+            {t('login.submit')}
           </button>
         </form>
 
         <p className="mt-6 text-sm text-center text-gray-600">
-          Don&apos;t have an account?{' '}
+          {t('login.noAccount')}{' '}
           <span
             onClick={() => navigate('/register')}
             className="text-blue-600 hover:underline cursor-pointer"
           >
-            Register here
+            {t('login.register')}
           </span>
         </p>
       </div>

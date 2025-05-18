@@ -25,6 +25,7 @@ const resources = {
       type: "Type",
       size: "Size",
       close: "Close",
+      
 
       contact: {
         title: "Contact Us",
@@ -66,6 +67,63 @@ const resources = {
           notifications: "Real-time notifications.",
           customerSupport: "Dedicated support and tailored recommendations."
         }
+      },
+      faq: {
+  title: "Frequently Asked Questions",
+  q1: {
+    question: "What is this project about?",
+    answer: "This project is a platform where users can manage their profiles, interact with the system, and access different services offered by the platform. This platform is open access for all users."
+  },
+  q2: {
+    question: "How can I create an account?",
+    answer: "To create an account, simply click the \"Sign Up\" button on the homepage and provide your name, email, and password."
+  },
+  q3: {
+    question: "How can I update my profile?",
+    answer: "You can update your profile by visiting the Profile page and modifying your name, email, phone number, and password."
+  },
+  q4: {
+    question: "How do I reset my password?",
+    answer: "If you have forgotten your password, you can click the \"Forgot Password\" link on the login page and follow the instructions to reset your password."
+  },
+  q5: {
+    question: "Who can access the FAQ page?",
+    answer: "Anyone can access the FAQ page to learn more about the platform. There is no restriction based on user roles."
+  },
+  q6: {
+    question: "How can I contact support?",
+    answer: "For support, you can reach out via the \"Contact Us\" page or email us at support@yourproject.com."
+  }
+},
+login: {
+  title: "Login",
+  email: "Email",
+  password: "Password",
+  submit: "Login",
+  noAccount: "Don't have an account?",
+  register: "Register here",
+  errors: {
+    failed: "Login failed",
+    unknownRole: "Unknown role, cannot navigate.",
+    generic: "Something went wrong. Try again later."
+  }
+},
+ register: {
+        title: "Register",
+        name: "Name",
+        email: "Email",
+        phone: "Phone",
+        password: "Password",
+        role: "Role",
+        customer: "Customer",
+        owner: "Owner",
+        admin: "Admin",
+        submit: "Register",
+        errors: {
+          failed: "Registration failed",
+          generic: "Something went wrong. Try again later."
+        },
+        success: "Registration successful!"
       }
     }
   },
@@ -132,7 +190,67 @@ const resources = {
           notifications: "...",
           customerSupport: "..."
         }
-      }
+      },
+
+      faq: {
+  title: "በተደጋጋሚ የሚጠየቁ ጥያቄዎች",
+  q1: {
+    question: "ይህ ፕሮጀክት ስለ ምንድን ነው?",
+    answer: "ይህ ፕሮጀክት ተጠቃሚዎች መገለጫቸውን ማቆጣጠር፣ ከስርዓቱ ጋር መስተባበር፣ እና የተለያዩ አገልግሎቶችን ማግኘት የሚችሉበት መድረክ ነው። ይህ መድረክ ለሁሉም ተጠቃሚዎች ክፍት ነው።"
+  },
+  q2: {
+    question: "መለያ እንዴት ማፍራት እችላለሁ?",
+    answer: "መለያ ለመፍጠር በመነሻ ገፅ \"ይመዝገቡ\" የሚለውን ቁልፍ ይጫኑ እና ስምዎን፣ ኢሜይልዎን፣ እና የይለፍ ቃልዎን ያስገቡ።"
+  },
+  q3: {
+    question: "መገለጫዬን እንዴት ማዘመን እችላለሁ?",
+    answer: "የመገለጫ ገፅ በመጎብኘት ስም፣ ኢሜይል፣ ስልክ ቁጥር፣ እና የይለፍ ቃልዎን በማሻሻል መገለጫዎን ማዘመን ይችላሉ።"
+  },
+  q4: {
+    question: "የይለፍ ቃል ረስቼዋለሁ፤ እንዴት እመለሳለሁ?",
+    answer: "የይለፍ ቃልዎን ከረሱ ከሆነ \"የይለፍ ቃል ረስቼዋለሁ\" በሚለው አገናኝ ይጫኑ እና መመሪያውን ይከተሉ።"
+  },
+  q5: {
+    question: "የFAQ ገፅን ማግኘት ማን ይችላል?",
+    answer: "ማንም ተጠቃሚ የFAQ ገፅን ማግኘት ይችላል። የተለያዩ የተጠቃሚ ሚናዎች ላይ መገደብ የለም።"
+  },
+  q6: {
+    question: "ድጋፍ ለማግኘት እንዴት እንችላለን?",
+    answer: "\"አግኙን\" የሚለውን ገፅ በመጎብኘት ወይም support@yourproject.com በመላክ ድጋፍ ማግኘት ይችላሉ።"
+  }
+},
+login: {
+  title: "መግቢያ",
+  email: "ኢሜይል",
+  password: "የይለፍ ቃል",
+  submit: "ግባ",
+  noAccount: "መለያ የለዎትም?",
+  register: "እዚህ ይመዝገቡ",
+  errors: {
+    failed: "መግቢያ አልተሳካም",
+    unknownRole: "ያልታወቀ ሚና፣ መቅደም አይቻልም።",
+    generic: "የተሳሳተ ነገር ተከስቷል። እባክዎ እንደገና ይሞክሩ።"
+  }
+},
+register: {
+  title: "መመዝገብ",
+  name: "ስም",
+  email: "ኢሜይል",
+  phone: "ስልክ",
+  password: "ፓስዎርድ",
+  role: "አገልግሎት",
+  customer: "ደንበኛ",
+  owner: "ባለቤት",
+  admin: "አስተዳዳሪ",
+  submit: "መመዝገብ",
+  errors: {
+    failed: "መመዝገብ አልተቻለም",
+    generic: "ስህተት ተከስቷል። እባኮትን እንደገና ሞክሩ።"
+  },
+  success: "መመዝገብ ተሳካ!"
+}
+
+
     }
   },
 
@@ -200,10 +318,71 @@ const resources = {
           notifications: "Odeeffannoo yeroo dhugaa.",
           customerSupport: "Deeggarsa dhuunfaa fi gorsa filatamaa."
         }
-      }
+      },
+      faq: {
+  title: "Gaaffilee Barbaachisoo Yeroo Hedduu Gaafataman",
+  q1: {
+    question: "Projektiin kun maal irratti hojjetaa jira?",
+    answer: "Projektiin kun marsariitii itti fayyadamaan odeeffannoo isaa to’achuu, sirna waliin hojjechuu fi tajaajiloota garagaraa argachuu danda’u dha. Kun marsariitii itti namni kamiyyuu fayyadamu danda’u dha."
+  },
+  q2: {
+    question: "Akkaataa itti account uumuu danda’u?",
+    answer: "\"Sign Up\" jedhu tuqaa, maqaa, imeelii fi jecha iccitii kee galchi.",
+  },
+  q3: {
+    question: "Akkaataa itti profile koo haaromsu danda’u?",
+    answer: "Fuula profile dhaquun maqaa, imeelii, lakkoofsa bilbila fi jecha iccitii haaromsuu ni dandeessa.",
+  },
+  q4: {
+    question: "Jecha iccitii koo irra deebi’uuf maal godha?",
+    answer: "\"Jecha iccitii irra irra deebi'i\" jedhu cuqaasaa, gorsa hordofaa.",
+  },
+  q5: {
+    question: "Fuula Gaaffii fi Deebii argachuu danda’u eenyu?",
+    answer: "Namni kamiyyuu fuula kana daawwachuu danda’a. Ulaagaa hin jiru.",
+  },
+  q6: {
+    question: "Tumsaa akkamitti argachuu danda’a?",
+    answer: "Fuula \"Nu qunnamaa\" dhaquun ykn support@yourproject.com irratti barreessuun tumsaa ni argattu.",
+  }
+},
+login: {
+  title: "Seeni",
+  email: "Imeelii",
+  password: "Jecha iccitii",
+  submit: "Seeni",
+  noAccount: "Herregi hin jiru?",
+  register: "Asitti galmaa’i",
+  errors: {
+    failed: "Seenuu hin dandeenye",
+    unknownRole: "Gahee hin beekamne, gara fuula deemuu hin danda’u.",
+    generic: "Dogoggorri uumame. Itti deebi’i yaali."
+  }
+},
+register: {
+  title: "galmee",
+  name: "Maqaa",
+  email: "imeelii",
+  phone: "Bilbila",
+  password: "lakkofsa icciitii",
+  role: "Gahee",
+  customer: "Maqaa",
+  owner: "Abbaa qabeenyaa",
+  admin: "Bulchaa",
+  submit: "Ergaa",
+  errors: {
+    failed: "Galmeen hin milkoofne",
+    generic: "Dogoggora ta'ee jira. Mee irra deebiin yaali."
+  },
+  success: "Galmee milkaa'eera!"
+}
+
+
+
     }
   }
 };
+
 
 i18n.use(initReactI18next).init({
   resources,

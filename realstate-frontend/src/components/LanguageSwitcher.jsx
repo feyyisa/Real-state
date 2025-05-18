@@ -9,17 +9,18 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="relative w-40">
+    <div className="fixed top-1 right-1 z-50">
       <select
         onChange={handleChange}
         value={i18n.language}
-        className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+        className="w-24 px-2 py-0.5 border border-gray-100 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-300 text-sm"
       >
         <option value="en">🌐 English</option>
-        <option value="am">🌍Amharic</option>
+        <option value="am">🌍 Amharic</option>
         <option value="om">🌍 Afaan Oromoo</option>
       </select>
     </div>
   );
 };
+
 export default LanguageSwitcher;

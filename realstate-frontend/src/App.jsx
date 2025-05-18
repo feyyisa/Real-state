@@ -54,8 +54,8 @@ function AppContent() {
     <>
       <Routes>
         {/* 🔓 Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+       <Route path="/login" element={<><LanguageSwitcher /><Login /></>} />
+      <Route path="/register" element={<><LanguageSwitcher /><Register /></>} />
 
         {/* 👤 Customer Routes */}
         <Route path="/" element={<><Navbar /><LanguageSwitcher /><Home /></>} />
