@@ -3,13 +3,17 @@ const Feedback = require("../models/Feedback");
 // Create new feedback
 exports.createFeedback = async (req, res) => {
   try {
-    const { name, email, message } = req.body;
-    if (!name || !email || !message) {
-      return res.status(400).json({ error: "All fields are required" });
+    const { userId, name, email, message, rating, propertyId, agentId } = req.body;
+
+    // Validate incoming data
+    if (!userId || !name || !email || !message || !rating) {
+      return res.status(400).json({ error: "All fields (userId, name, email, message, rating) are required." });
     }
 
-    const feedback = new Feedback({ name, email, message });
+    // Create a new feedback
+    const feedback = new Feedback({ userId, name, email, message, rating, propertyId, agentId });
     await feedback.save();
+
     res.status(201).json({ message: "Feedback submitted successfully." });
   } catch (error) {
     console.error("Error creating feedback:", error);
@@ -17,16 +21,39 @@ exports.createFeedback = async (req, res) => {
   }
 };
 
-// Get all feedbacks (optional sorting)
+// Get all feedback (optionally filter by property or agent)
 exports.getAllFeedback = async (req, res) => {
   try {
-    const { sortBy = "createdAt", order = "desc" } = req.query;
+    const { sortBy = "createdAt", order = "desc", propertyId, agentId, userId } = req.query;
     const sortOrder = order === "asc" ? 1 : -1;
-    const feedbacks = await Feedback.find().sort({ [sortBy]: sortOrder });
+    const filter = {};
+
+    if (propertyId) filter.propertyId = propertyId;
+    if (agentId) filter.agentId = agentId;
+    if (userId) filter.userId = userId;  // Filter by userId if provided
+
+    const feedbacks = await Feedback.find(filter).sort({ [sortBy]: sortOrder });
     res.json(feedbacks);
   } catch (error) {
     console.error("Error fetching feedback:", error);
     res.status(500).json({ error: "Failed to fetch feedback" });
+  }
+};
+
+// Get feedback by userId
+exports.getFeedbackByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const feedbacks = await Feedback.find({ userId }).sort({ createdAt: -1 });
+
+    if (!feedbacks.length) {
+      return res.status(404).json({ message: "No feedback found for this user" });
+    }
+
+    res.json(feedbacks);  // Send all feedbacks for the user
+  } catch (error) {
+    console.error("Error fetching feedback by userId:", error);
+    res.status(500).json({ error: "Failed to fetch feedback for user" });
   }
 };
 
@@ -62,32 +89,14 @@ exports.deleteFeedback = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedFeedback = await Feedback.findByIdAndDelete(id);
+
     if (!deletedFeedback) {
       return res.status(404).json({ error: "Feedback not found" });
     }
+
     res.json({ message: "Feedback deleted successfully" });
   } catch (error) {
     console.error("Error deleting feedback:", error);
     res.status(500).json({ error: "Failed to delete feedback" });
-  }
-};
-
-// Get feedbacks by email
-exports.getFeedbackByEmail = async (req, res) => {
-  try {
-    const { email } = req.params;
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-
-    const feedbacks = await Feedback.find({ email }).sort({ createdAt: -1 });
-    if (!feedbacks.length) {
-      return res.status(404).json({ message: "No feedback found for this user" });
-    }
-
-    res.json(feedbacks);
-  } catch (error) {
-    console.error("Error fetching feedback by email:", error);
-    res.status(500).json({ error: "Failed to fetch feedback for user" });
   }
 };

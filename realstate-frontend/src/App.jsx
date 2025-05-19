@@ -65,6 +65,7 @@ function AppContent() {
         <Route path="/about" element={<><Navbar /><LanguageSwitcher /><About /></>} />
         <Route path="/faq" element={<><Navbar /><LanguageSwitcher /><FAQPage /></>} />
 
+ 
         {/* 🔒  Customer Protected Routes */}
         <Route path="/bookingSummary" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingSummary /></ProtectedRoute>} />
         <Route path="/socialmedia" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><SocialMediaShare /></ProtectedRoute>} />
@@ -73,9 +74,9 @@ function AppContent() {
         <Route path="/paymentsuccess/:id" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><PaymentSuccess /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><Checkout /></ProtectedRoute>} />
         <Route path="/paymentpage" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><PaymentPage /></ProtectedRoute>} />
-        <Route path="/bookhouse" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingHouse /></ProtectedRoute>} />
+        <Route path="/bookhouse/:id" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingHouse /></ProtectedRoute>} />
         <Route path="/mymessage" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><MyMessege /></ProtectedRoute>} />
-
+        <Route path="/feedbackform" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><FeedbackForm /></ProtectedRoute>} />
         <Route path="/costumer/customerdashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerDashboard /></ProtectedRoute>}>
           <Route path="feedbacklist" element={<FeedbackList />} />
           <Route path="costumer" element={<Payment />} />
@@ -199,7 +200,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-
+        <Route path="/feedbacklist" element={<><Navbar /><LanguageSwitcher /><FeedbackList /></>} />
       </Routes>
 
       <Footer />

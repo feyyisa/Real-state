@@ -1,99 +1,53 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from 'react';
+import axios from 'axios';
 
-const FeedbackForm = ({ propertyId }) => {
-  const [form, setForm] = useState({ name: "", email: "", message: "", propertyId: "" });
-  const [status, setStatus] = useState("");
-  const [feedbackList, setFeedbackList] = useState([]);
+export default function FeedbackForm({ propertyId, userId }) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
 
-  useEffect(() => {
-    if (propertyId) {
-      setForm((prev) => ({ ...prev, propertyId }));
-      fetchFeedback();
-    }
-  }, [propertyId]);
-
-  const fetchFeedback = async () => {
+  const submitFeedback = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/feedback/property/${propertyId}`);
-      setFeedbackList(res.data || []);
-    } catch (err) {
-      console.error("Error fetching feedback:", err);
-    }
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("http://localhost:5000/api/feedback/submit", form);
-      setStatus("Feedback submitted successfully.");
-      setForm({ ...form, name: "", email: "", message: "" });
-      fetchFeedback(); // Refresh after submission
+      // POST to the correct endpoint for feedback submission
+      await axios.post(`http://localhost:5000/api/feedback/property/${propertyId}`, {
+        userId,
+        rating,
+        comment,
+      });
+      alert('Feedback submitted!');
+      setRating(0);
+      setComment('');
     } catch (error) {
-      console.error("Feedback Error:", error);
-      setStatus("Failed to submit feedback.");
+      console.error('Error submitting feedback:', error);
+      alert('Error submitting feedback.');
     }
   };
 
   return (
-    <div className="bg-white shadow p-6 rounded mt-10">
-      <h2 className="text-xl font-bold mb-4">Property Feedback</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          type="text"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Your Name"
-          required
-          className="w-full border p-2 rounded"
-        />
-        <input
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Your Email"
-          required
-          className="w-full border p-2 rounded"
-        />
-        <textarea
-          name="message"
-          value={form.message}
-          onChange={handleChange}
-          placeholder="Your Feedback"
-          required
-          className="w-full border p-2 rounded"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Submit Feedback
-        </button>
-        {status && <p className="text-sm mt-2 text-green-600">{status}</p>}
-      </form>
-
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">What others say about this property:</h3>
-        {feedbackList.length === 0 ? (
-          <p className="text-gray-500">No feedback yet.</p>
-        ) : (
-          <ul className="space-y-2">
-            {feedbackList.map((fb, index) => (
-              <li key={index} className="border p-2 rounded text-sm text-gray-800">
-                <strong>{fb.name}</strong>: {fb.message}
-              </li>
-            ))}
-          </ul>
-        )}
+    <div className="p-4 bg-white rounded shadow">
+      <h2 className="text-lg font-bold mb-2">Leave a Review</h2>
+      <div className="flex space-x-1 mb-2">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => setRating(star)}
+            className={`text-2xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+          >
+            ★
+          </button>
+        ))}
       </div>
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        className="w-full p-2 border rounded mb-2"
+        placeholder="Write your review..."
+      />
+      <button
+        onClick={submitFeedback}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Submit
+      </button>
     </div>
   );
-};
-
-export default FeedbackForm;
+}

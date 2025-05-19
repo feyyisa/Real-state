@@ -1,39 +1,45 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import UserDropdown from "./UserProfile";
-import Login from './../pages/commonshare/Login';
-import FAQPage from './FAQPage';
-import Home from './../pages/costumer/Home';
 
 export default function Navbar() {
-  // Get the role from localStorage (assuming you store user info as a JSON string)
-  const user = JSON.parse(localStorage.getItem("user")); 
+  const { t } = useTranslation();
+
+  // Get the role from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role;
 
   return (
-    <div className="bg-green-400 ">
+    <div className="bg-green-400">
       <h1 className="text-2xl font-bold text-gray-700 text-center">Real Estate</h1>
-      {/* Flex container to position the navbar items */}
+
+      {/* Navbar Items */}
       <ul className="flex justify-end space-x-6 text-white font-semibold mt-2">
         <li>
-          <Link to="/about">About</Link>
+          <Link to="/">{t("navbar.home")}</Link>
         </li>
         <li>
-          <Link to="/service">Service</Link>
+          <Link to="/about">{t("navbar.about")}</Link>
         </li>
         <li>
-          <Link to="/pricing">Pricing</Link>
+          <Link to="/service">{t("navbar.service")}</Link>
         </li>
         <li>
-          <Link to="/contact">Contact</Link>
+          <Link to="/pricing">{t("navbar.pricing")}</Link>
         </li>
         <li>
-          <Link to="/faq">FAQ</Link>
+          <Link to="/contact">{t("navbar.contact")}</Link>
         </li>
         <li>
-          <Link to="/login">Login</Link>
+          <Link to="/faq">{t("navbar.faq")}</Link>
         </li>
-        {/* Show UserDropdown only if role is 'customer' */}
+        <li>
+          <Link to="/login">{t("navbar.login")}</Link>
+        </li>
+        <li>
+          <Link to="/register">{t("navbar.register")}</Link>
+        </li>
         {role === "customer" && <UserDropdown />}
       </ul>
     </div>

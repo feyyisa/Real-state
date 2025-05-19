@@ -124,7 +124,18 @@ login: {
           generic: "Something went wrong. Try again later."
         },
         success: "Registration successful!"
-      }
+      },
+      navbar: {
+  home: "Home",
+  about: "About",
+  service: "Service",
+  pricing: "Pricing",
+  contact: "Contact",
+  faq: "FAQ",
+  login: "Login",
+  register: "Register"
+}
+
     }
   },
 
@@ -248,6 +259,16 @@ register: {
     generic: "ስህተት ተከስቷል። እባኮትን እንደገና ሞክሩ።"
   },
   success: "መመዝገብ ተሳካ!"
+},
+navbar: {
+  home: "መነሻ",
+  about: "ስለ እኛ",
+  service: "አገልግሎት",
+  pricing: "ዋጋ",
+  contact: "አግኙን",
+  faq: "ጥያቄዎች",
+  login: "ግባ",
+  register: "መመዝገብ"
 }
 
 
@@ -375,9 +396,18 @@ register: {
     generic: "Dogoggora ta'ee jira. Mee irra deebiin yaali."
   },
   success: "Galmee milkaa'eera!"
+},
+
+navbar: {
+  home: "Mana",
+  about: "Waa'ee",
+  service: "Tajaajila",
+  pricing: "Gatii",
+  contact: "Nu qunnamaa",
+  faq: "Gaaffii",
+  login: "Seeni",
+  register: "Galmee"
 }
-
-
 
     }
   }

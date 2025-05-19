@@ -26,10 +26,17 @@ function UserMessages({ userEmail: propUserEmail }) {
       if (!userEmail) return;
 
       try {
-        const res = await axios.get(`http://localhost:5000/api/feedback/user/${userEmail}`);
+        const token = localStorage.getItem("token");  // Get JWT token from localStorage
+
+        // Replace the placeholder ':userId' with actual 'userEmail' or 'userId'
+        const res = await axios.get(`http://localhost:5000/api/feedback/user/${userEmail}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,  // Pass the JWT token for authentication
+          },
+        });
 
         if (Array.isArray(res.data)) {
-          setMessages(res.data);
+          setMessages(res.data);  // Set the response data as messages
         } else {
           throw new Error("Unexpected data format");
         }

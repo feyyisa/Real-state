@@ -1,219 +1,187 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { message, Button, DatePicker, Select } from "antd";
+import { useParams, useNavigate } from "react-router-dom";
+import { message, Button, Form, Upload, Checkbox } from "antd";
+import { UploadOutlined } from '@ant-design/icons';
 import axios from "axios";
-
-const { RangePicker } = DatePicker;
-const { Option } = Select;
+import chapaLogo from '../../assets/chapa-logo.jpg';
 
 const BookingHouse = () => {
-  const { houseid } = useParams();
+  const { id: propertyId } = useParams();
   const navigate = useNavigate();
-  const [house, setHouse] = useState(null);
-  const [selectedDates, setSelectedDates] = useState([]);
+  const [property, setProperty] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [location, setLocation] = useState("");
-  const [isAvailable, setIsAvailable] = useState(null);
-  const [availabilityChecked, setAvailabilityChecked] = useState(false);
-  const [from, to] = selectedDates;
+  const [commission, setCommission] = useState(0);
+  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const fetchHouseDetails = async () => {
+    const fetchPropertyDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/houses/gethouse/${houseid}`);
-        if (!res.ok) throw new Error("Failed to fetch house details!");
-        const data = await res.json();
-        setHouse(data);
+        const res = await axios.get(`http://localhost:5000/api/properties/${propertyId}`);
+        setProperty(res.data);
+        // Calculate commission based on property price (2%)
+        const commissionAmount = res.data.price * 0.02;
+        setTotalAmount(res.data.price);
+        setCommission(commissionAmount);
       } catch (err) {
         console.error(err);
-        message.error("Error fetching house details.");
+        message.error("Error fetching property details.");
       }
     };
 
-    fetchHouseDetails();
-  }, [houseid]);
+    fetchPropertyDetails();
+  }, [propertyId]);
 
-  useEffect(() => {
-    if (selectedDates.length === 2 && house) {
-  const start = new Date(selectedDates[0]);
-  const end = new Date(selectedDates[1]);
-  const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-  const total = diffDays * house.price; // Assuming `price` means per-day rent
-  setTotalAmount(total);
-}
-
-  }, [selectedDates, house]);
-
-  const handleDateChange = (dates, dateStrings) => {
-    if (dates && dates.length === 2) {
-      setSelectedDates(dateStrings);
-    } else {
-      setSelectedDates([]);
-      setTotalAmount(0);
-    }
+  const handleUpload = ({ fileList }) => {
+    setFileList(fileList);
   };
 
-  const disabledDate = (current) => {
-    return current && current < new Date().setHours(0, 0, 0, 0);
-  };
-
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  useEffect(() => {
-    const loadChapaSDK = () => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.chapa.co/hosted/pay.js";
-      script.async = true;
-      script.onload = () => console.log("Chapa SDK loaded");
-      document.body.appendChild(script);
-    };
-    loadChapaSDK();
-  }, []);
-
-  const handleChapaPayment = async () => {
+  const handleSubmit = async () => {
     if (!user) {
       message.warning("Please log in first.");
       navigate("/login");
       return;
     }
 
-    if (!selectedDates.length || !location) {
-      message.error("Please complete all booking details.");
-      return;
-    }
-
-  const handleBooking = async () => {
-  try {
-    const response = await axios.post(`http://localhost:5000/api/bookings`, {
-      propertyId: houseid,
-      userId: user._id,
-      from: selectedDates[0],
-      to: selectedDates[1],
-      amount: totalAmount,
-    });
-    message.success("Booking successful!");
-    navigate("/mybookings");
-  } catch (error) {
-    console.error(error);
-    message.error("Booking failed");
-  }
-};
-
-  };
-
-  const fetchAvailability = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/bookings/house-availability/${houseid}`);
-      setIsAvailable(res.data.available);
-      setAvailabilityChecked(true);
-    } catch (err) {
-      console.error("Error fetching availability", err);
-      message.error("Availability check failed.");
+      setLoading(true);
+      
+      // Create the booking and get payment URL from backend
+      const response = await axios.post(`http://localhost:5000/api/bookings`, {
+        property: propertyId,
+        bookedBy: user._id,
+        type: property.listingType,
+        totalPrice: totalAmount + commission,
+        bookerIdCardFile: fileList[0]?.name || "Uploaded ID",
+        status: 'pending',
+        paymentStatus: 'unpaid'
+      });
+
+      // Redirect to payment URL provided by backend
+      window.location.href = response.data.paymentUrl;
+
+    } catch (error) {
+      console.error(error);
+      message.error("Booking failed: " + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!house) {
+  if (!property) {
     return (
       <div className="text-center py-10">
-        <h1 className="text-2xl font-semibold">House not found</h1>
-        <Link to="/" className="text-blue-500 hover:underline">
-          Back to Home
-        </Link>
+        <h1 className="text-2xl font-semibold">Loading property details...</h1>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>
-          <h2 className="text-3xl font-bold mb-4">{house.name}</h2>
+          <h2 className="text-3xl font-bold mb-4">{property.title}</h2>
           <img
-            src={house.image}
-            alt={house.name}
+            src={`http://localhost:5000/uploads/${property.profileImage}`}
+            alt={property.title}
             className="w-full h-72 object-cover rounded-lg shadow-lg mb-6"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/400x300?text=Property+Image';
+            }}
           />
-          <div className="space-y-2 text-gray-700">
+          <div className="space-y-2 text-gray-700 mb-6">
             <p>
-              <strong>Location:</strong> {house.location}
+              <strong>Status:</strong> 
+              <span className={`ml-2 px-2 py-1 rounded text-sm font-semibold ${
+                property.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {property.status.toUpperCase()}
+              </span>
             </p>
             <p>
-              <strong>Bedrooms:</strong> {house.bedrooms}
+              <strong>Location:</strong> {property.location?.city}, {property.location?.region}
             </p>
             <p>
-              <strong>Price Per Day:</strong> ${house.rentPerDay}
+              <strong>Bedrooms:</strong> {property.bedrooms}
+            </p>
+            <p>
+              <strong>Bathrooms:</strong> {property.bathrooms}
+            </p>
+            <p>
+              <strong>Price:</strong> {new Intl.NumberFormat('en-ET', {
+                style: 'currency',
+                currency: 'ETB'
+              }).format(property.price)}
+            </p>
+            <p>
+              <strong>Commission (2%):</strong> {new Intl.NumberFormat('en-ET', {
+                style: 'currency',
+                currency: 'ETB'
+              }).format(commission)}
+            </p>
+            <p className="text-lg font-bold">
+              <strong>Total:</strong> {new Intl.NumberFormat('en-ET', {
+                style: 'currency',
+                currency: 'ETB'
+              }).format(totalAmount + commission)}
             </p>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h3 className="text-2xl font-semibold mb-6">Booking Details</h3>
-
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Select Dates</label>
-            <RangePicker
-              showTime={{ format: "HH:mm" }}
-              format="MMM DD, YYYY HH:mm"
-              onChange={handleDateChange}
-              disabledDate={disabledDate}
-              className="w-full"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Select Location</label>
-            <Select
-              className="w-full"
-              placeholder="Choose Location"
-              value={location}
-              onChange={(value) => setLocation(value)}
+          <h3 className="text-2xl font-semibold mb-6">Booking & Payment</h3>
+          
+          <Form form={form} onFinish={handleSubmit} layout="vertical">
+            <Form.Item
+              label="ID Card Upload"
+              name="idCard"
+              rules={[{ required: true, message: 'Please upload your ID card!' }]}
             >
-              <Option value="Addis Ababa">Addis Ababa</Option>
-              <Option value="Adama">Adama</Option>
-              <Option value="Hawassa">Hawassa</Option>
-            </Select>
-          </div>
+              <Upload
+                fileList={fileList}
+                onChange={handleUpload}
+                beforeUpload={() => false}
+                accept="image/*,.pdf"
+              >
+                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+            </Form.Item>
 
-          {selectedDates.length > 0 && (
-            <div className="space-y-2 text-gray-800 mb-4">
-              <p><strong>From:</strong> {formatDate(from)}</p>
-              <p><strong>To:</strong> {formatDate(to)}</p>
-              <p className="text-green-600 font-bold">Total: ${totalAmount.toFixed(2)}</p>
-            </div>
-          )}
-
-          <Button type="default" className="mt-4" onClick={fetchAvailability}>
-            Check Availability
-          </Button>
-
-          {availabilityChecked && (
-            <div
-              className={`mt-4 p-4 rounded-lg text-white text-center font-semibold ${
-                isAvailable ? "bg-green-500" : "bg-red-500"
-              }`}
+            <Form.Item
+              name="agreement"
+              valuePropName="checked"
+              rules={[
+                {
+                  validator: (_, value) =>
+                    value ? Promise.resolve() : Promise.reject('You must accept the agreement'),
+                },
+              ]}
             >
-              {isAvailable ? "✅ House is AVAILABLE" : "❌ House is OCCUPIED"}
-            </div>
-          )}
+              <Checkbox>
+                I agree to the 2% commission fee and understand this payment is non-refundable
+              </Checkbox>
+            </Form.Item>
 
-          <Button
-            type="primary"
-            className="w-full mt-6"
-            onClick={handleChapaPayment}
-            disabled={availabilityChecked && !isAvailable}
-          >
-            Pay and Book with Chapa
-          </Button>
+            <Form.Item>
+              <Button
+                htmlType="submit"
+                className="w-full mt-6 h-12"
+                style={{
+                  backgroundColor: '#0c1a35',
+                  borderColor: '#1D4ED8',
+                }}
+                loading={loading}
+                disabled={property.status !== 'available'}
+              >
+                <div className="flex items-center justify-center gap-2">
+                   <img src={chapaLogo} alt="Chapa" className="h-10" />
+                  <span className="text-white font-medium">Pay & Book with Chapa</span>
+                </div>
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
       </div>
     </div>

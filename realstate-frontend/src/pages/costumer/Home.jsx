@@ -76,10 +76,10 @@ const Home = () => {
     fetchProperties();
   }, [t]);
 
-  const handleBookAndPay = () => {
-    if (!selectedProperty) return;
-    navigate("/bookhouse", { state: { property: selectedProperty } });
-  };
+ // In the Home component, update the handleBookAndPay function:
+const handleBookAndPay = (propertyId) => {
+  navigate(`/bookhouse/${propertyId}`);
+};
 
   const filteredProperties = properties
     .filter((property) => (typeFilter ? property?.listingType === typeFilter : true))
@@ -331,13 +331,59 @@ const Home = () => {
                   </svg>
                 </button>
                 
-                {/* Image Gallery */}
+                {/* Main Profile Image */}
                 <div className="relative h-64 md:h-96 bg-gray-200">
                   <img
                     src={getFullImageUrl(selectedProperty.profileImage)}
                     alt={selectedProperty.title}
                     className="w-full h-full object-cover"
                   />
+                </div>
+                
+                {/* Additional Images Section */}
+                <div className="p-4 bg-gray-50">
+                  <h3 className="text-lg font-semibold mb-2">Property Images</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedProperty.bedroomImage && (
+                      <div className="h-32 rounded overflow-hidden">
+                        <img
+                          src={getFullImageUrl(selectedProperty.bedroomImage)}
+                          alt="Bedroom"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/400x300?text=Bedroom+Image';
+                          }}
+                        />
+                        <p className="text-xs text-center mt-1">Bedroom</p>
+                      </div>
+                    )}
+                    {selectedProperty.bathroomImage && (
+                      <div className="h-32 rounded overflow-hidden">
+                        <img
+                          src={getFullImageUrl(selectedProperty.bathroomImage)}
+                          alt="Bathroom"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/400x300?text=Bathroom+Image';
+                          }}
+                        />
+                        <p className="text-xs text-center mt-1">Bathroom</p>
+                      </div>
+                    )}
+                    {selectedProperty.otherImage && (
+                      <div className="h-32 rounded overflow-hidden">
+                        <img
+                          src={getFullImageUrl(selectedProperty.otherImage)}
+                          alt="Property"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/400x300?text=Property+Image';
+                          }}
+                        />
+                        <p className="text-xs text-center mt-1">Property</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="p-6">
@@ -448,8 +494,9 @@ const Home = () => {
                           </div>
                         )}
 
+                        // Update the button in the property detail modal:
                         <button
-                          onClick={handleBookAndPay}
+                          onClick={() => handleBookAndPay(selectedProperty._id)}
                           disabled={selectedProperty.status !== 'available'}
                           className={`w-full py-2 px-4 rounded font-medium ${
                             selectedProperty.status === 'available'
