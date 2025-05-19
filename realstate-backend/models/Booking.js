@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema({
   },
   paymentReceipt: {
     type: String,
-    required: true
+    default: 'pending'
   },
   bookedBy: { 
     type: mongoose.Schema.Types.ObjectId, 

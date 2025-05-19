@@ -494,7 +494,6 @@ const handleBookAndPay = (propertyId) => {
                           </div>
                         )}
 
-                        // Update the button in the property detail modal:
                         <button
                           onClick={() => handleBookAndPay(selectedProperty._id)}
                           disabled={selectedProperty.status !== 'available'}

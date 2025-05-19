@@ -4,6 +4,8 @@ import { message, Button, Form, Upload, Checkbox } from "antd";
 import { UploadOutlined } from '@ant-design/icons';
 import axios from "axios";
 import chapaLogo from '../../assets/chapa-logo.jpg';
+import {jwtDecode} from 'jwt-decode'; // Add this import
+
 
 const BookingHouse = () => {
   const { id: propertyId } = useParams();
@@ -38,37 +40,56 @@ const BookingHouse = () => {
     setFileList(fileList);
   };
 
-  const handleSubmit = async () => {
-    if (!user) {
-      message.warning("Please log in first.");
-      navigate("/login");
-      return;
-    }
+const handleSubmit = async () => {
+  if (!user) {
+    message.warning("Please log in first.");
+    navigate("/login");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      
-      // Create the booking and get payment URL from backend
-      const response = await axios.post(`http://localhost:5000/api/bookings`, {
-        property: propertyId,
-        bookedBy: user._id,
-        type: property.listingType,
-        totalPrice: totalAmount + commission,
-        bookerIdCardFile: fileList[0]?.name || "Uploaded ID",
-        status: 'pending',
-        paymentStatus: 'unpaid'
-      });
+  if (fileList.length === 0) {
+    message.error("Please upload your ID card");
+    return;
+  }
 
-      // Redirect to payment URL provided by backend
-      window.location.href = response.data.paymentUrl;
+  try {
+    setLoading(true);
+    
+    // Decode the JWT token to get user ID
+    const token = localStorage.getItem('token');
+    const decoded = jwtDecode(token);
+    const userId = decoded.id;
 
-    } catch (error) {
-      console.error(error);
-      message.error("Booking failed: " + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('property', propertyId);
+    formData.append('type', property.listingType);
+    formData.append('totalPrice', String(totalAmount + commission));
+    formData.append('bookedBy', userId); // Use decoded ID
+    formData.append('bookerIdCardFile', fileList[0].originFileObj);
+    
+    // Create the booking and get payment URL from backend
+    const response = await axios.post(
+      'http://localhost:5000/api/bookings/book', 
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    // Redirect to payment URL provided by backend
+    window.location.href = response.data.paymentUrl;
+
+  } catch (error) {
+    console.error(error);
+    message.error("Booking failed: " + (error.response?.data?.message || error.message));
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!property) {
     return (
@@ -144,6 +165,7 @@ const BookingHouse = () => {
                 onChange={handleUpload}
                 beforeUpload={() => false}
                 accept="image/*,.pdf"
+                maxCount={1}
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
@@ -176,7 +198,7 @@ const BookingHouse = () => {
                 disabled={property.status !== 'available'}
               >
                 <div className="flex items-center justify-center gap-2">
-                   <img src={chapaLogo} alt="Chapa" className="h-10" />
+                  <img src={chapaLogo} alt="Chapa" className="h-10" />
                   <span className="text-white font-medium">Pay & Book with Chapa</span>
                 </div>
               </Button>

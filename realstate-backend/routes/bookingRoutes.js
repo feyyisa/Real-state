@@ -12,7 +12,9 @@ const {
   getBookingsByDate,
   getBookingsByStatus,
   getBookingsByPaymentStatus,
-  getBookingsByType
+  getBookingsByType,
+  paymentCallback,
+  updateBookingStatus
 } = require('../controllers/bookingController');
 
 // Multer Setup for File Upload
@@ -39,7 +41,7 @@ const upload = multer({
 });
 
 // Create a booking
-router.post('/book', upload.fields([{ name: 'bookerIdCardFile', maxCount: 1 }, { name: 'paymentReceipt', maxCount: 1 }]), book);
+router.post('/book', upload.single('bookerIdCardFile'), book);
 
 // Get all bookings
 router.get('/', getAllBookings);
@@ -67,5 +69,9 @@ router.get('/payment-status/:paymentStatus', getBookingsByPaymentStatus);
 
 // Get bookings by type (rent/sell)
 router.get('/type/:type', getBookingsByType);
+
+router.post('/bookings/payment-callback', paymentCallback);
+
+router.put('/:bookingId/status', updateBookingStatus);
 
 module.exports = router;
