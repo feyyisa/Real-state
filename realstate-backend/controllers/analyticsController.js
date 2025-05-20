@@ -1,4 +1,3 @@
-const Analytics = require("../models/AnalyticsModel");
 const Property = require("../models/Property");
 
 // Static Analytics

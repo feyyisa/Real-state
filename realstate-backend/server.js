@@ -12,64 +12,19 @@ const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const Booking = require('./models/Booking');
 const Property = require('./models/Property');
+const paymentVerificationService = require('./services/paymentVerificationService');
+paymentVerificationService.start();
 
-// Add this after MongoDB connection but before app.listen()
-const checkPendingPayments = async () => {
-  try {
-    const unpaidBookings = await Booking.find({ 
-      paymentStatus: 'unpaid',
-      paymentReceipt: { $ne: 'pending' } // Only check those with payment reference
-    }).populate('property');
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  paymentVerificationService.stop();
+  process.exit();
+});
 
-    for (const booking of unpaidBookings) {
-      try {
-        const response = await axios.get(
-          `https://api.chapa.co/v1/transaction/verify/${booking.paymentReceipt}`,
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`
-            }
-          }
-        );
-
-        const paymentData = response.data.data;
-        if (paymentData.status === 'success') {
-          // Update booking status
-          await Booking.findByIdAndUpdate(booking._id, {
-            paymentStatus: 'paid',
-          });
-
-          // Keep property as booked
-          await Property.findByIdAndUpdate(
-            booking.property._id,
-            { status: 'booked' }
-          );
-        } else {
-          // If payment failed, mark booking as failed and make property available
-          await Booking.findByIdAndUpdate(booking._id, {
-            paymentStatus: 'failed',
-            status: 'cancelled'
-          });
-          
-          await Property.findByIdAndUpdate(
-            booking.property._id,
-            { status: 'available' }
-          );
-        }
-      } catch (error) {
-        console.error(`Error verifying payment for booking ${booking._id}:`, error.message);
-      }
-    }
-  } catch (error) {
-    console.error('Error in payment verification service:', error);
-  }
-};
-
-// Run every 30 minutes (adjust as needed)
-setInterval(checkPendingPayments, 10 * 60 * 1000); 
-
-// Run immediately on startup (optional)
-checkPendingPayments();
+process.on('SIGINT', () => {
+  paymentVerificationService.stop();
+  process.exit();
+});
 
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
