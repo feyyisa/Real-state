@@ -6,7 +6,7 @@ const Property = require('../models/Property');
 class PaymentVerificationService {
   constructor() {
     this.interval = null;
-    this.intervalMinutes = 10;
+    this.intervalMinutes = 1;
   }
 
   async verifyPayments() {
@@ -34,8 +34,7 @@ class PaymentVerificationService {
           if (paymentData.status === 'success') {
             await Promise.all([
               Booking.findByIdAndUpdate(booking._id, {
-                paymentStatus: 'paid',
-                status: 'confirmed'
+                paymentStatus: 'paid',  
               }),
               Property.findByIdAndUpdate(
                 booking.property._id,
