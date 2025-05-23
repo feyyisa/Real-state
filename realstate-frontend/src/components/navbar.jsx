@@ -34,12 +34,7 @@ export default function Navbar() {
         <li>
           <Link to="/faq">{t("navbar.faq")}</Link>
         </li>
-        <li>
-          <Link to="/login">{t("navbar.login")}</Link>
-        </li>
-        <li>
-          <Link to="/register">{t("navbar.register")}</Link>
-        </li>
+       
         {role === "customer" && <UserDropdown />}
       </ul>
     </div>

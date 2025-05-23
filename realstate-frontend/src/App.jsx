@@ -32,8 +32,7 @@ import OwnerDashboard from './pages/owner/OwnerDashboard';
 import PropertySearch from './pages/owner/PropertySearch';
 import OwnerPropertyManager from './pages/owner/OwnerPropertyManager';
 import OwnerBookingManager from './pages/owner/OwnerBookingManager';
-import OwnerPayments from './pages/owner/OwnerPayment';
-import Payment from './pages/owner/Payment';
+
 
 // Components
 import Navbar from './components/navbar';
@@ -70,7 +69,7 @@ function AppContent() {
         <Route path="/bookingSummary" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingSummary /></ProtectedRoute>} />
         <Route path="/socialmedia" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><SocialMediaShare /></ProtectedRoute>} />
         <Route path="/userprofileupdate" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><UserProfileUpdate /></ProtectedRoute>} />
-        <Route path="/payment" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><Payment /></ProtectedRoute>} />
+        
         <Route path="/paymentsuccess/:id" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><PaymentSuccess /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><Checkout /></ProtectedRoute>} />
         <Route path="/paymentpage" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><PaymentPage /></ProtectedRoute>} />
@@ -79,7 +78,7 @@ function AppContent() {
         <Route path="/feedbackform" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><FeedbackForm /></ProtectedRoute>} />
         <Route path="/costumer/customerdashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerDashboard /></ProtectedRoute>}>
           <Route path="feedbacklist" element={<FeedbackList />} />
-          <Route path="costumer" element={<Payment />} />
+          
           <Route path="feedbackform" element={<FeedbackForm />} />
         </Route>
 
@@ -180,16 +179,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/owner/ownerpayments"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <OwnerPayments />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
+       
         <Route
           path="/owner/searchproperty"
           element={

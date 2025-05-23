@@ -10,7 +10,7 @@ const OwnerSidebar = () => {
     { path: "/owner/ownerpropertymanager", label: "Manage Properties" },
     { path: "/owner/searchproperty", label: "Search Properties" },
     { path: "/owner/ownerbookingmanager", label: "Bookings" },
-    { path: "/owner/ownerpayments", label: "Payments" },
+    
   ];
 
   return (
