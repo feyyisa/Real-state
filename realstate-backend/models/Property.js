@@ -37,7 +37,14 @@ const propertySchema = new mongoose.Schema({
   acceptedBookings: { type: Number, default: 0 },
   earnings: { type: Number, default: 0 },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  //title: { type: String, required: true },
+  averageRating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 },
+  
+  // Add other fields...
+
 }, { timestamps: true });
 
-module.exports = mongoose.models.property || mongoose.model('property', propertySchema);
+module.exports = mongoose.models.Property || mongoose.model('Property', propertySchema);
+

@@ -1,102 +1,128 @@
-const Feedback = require("../models/Feedback");
+const Feedback = require('../models/Feedback');
+const Property = require('../models/Property');
+const mongoose = require('mongoose');
 
-// Create new feedback
-exports.createFeedback = async (req, res) => {
+// @desc    Submit feedback
+// @route   POST /api/feedback
+// @access  Private
+const submitFeedback = async (req, res) => {
   try {
-    const { userId, name, email, message, rating, propertyId, agentId } = req.body;
+    const { propertyId, rating, comment } = req.body;
 
-    // Validate incoming data
-    if (!userId || !name || !email || !message || !rating) {
-      return res.status(400).json({ error: "All fields (userId, name, email, message, rating) are required." });
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      return res.status(400).json({ success: false, error: 'Invalid property ID' });
     }
 
-    // Create a new feedback
-    const feedback = new Feedback({ userId, name, email, message, rating, propertyId, agentId });
-    await feedback.save();
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ success: false, error: 'Property not found' });
+    }
 
-    res.status(201).json({ message: "Feedback submitted successfully." });
+    const feedback = await Feedback.create({
+      property: propertyId,
+      user: req.user._id,
+      rating,
+      comment
+    });
+
+    // Update property's average rating and review count
+    await updatePropertyRating(propertyId);
+
+    const populatedFeedback = await Feedback.findById(feedback._id)
+      .populate('user', 'name email profilePicture')
+      .populate('property', 'title');
+
+    res.status(201).json({ success: true, data: populatedFeedback });
   } catch (error) {
-    console.error("Error creating feedback:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error submitting feedback:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
-// Get all feedback (optionally filter by property or agent)
-exports.getAllFeedback = async (req, res) => {
+// @desc    Get all feedback for a specific property
+// @route   GET /api/feedback/property/:propertyId
+// @access  Public
+const getPropertyFeedback = async (req, res) => {
   try {
-    const { sortBy = "createdAt", order = "desc", propertyId, agentId, userId } = req.query;
-    const sortOrder = order === "asc" ? 1 : -1;
-    const filter = {};
+    const { propertyId } = req.params;
 
-    if (propertyId) filter.propertyId = propertyId;
-    if (agentId) filter.agentId = agentId;
-    if (userId) filter.userId = userId;  // Filter by userId if provided
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      return res.status(400).json({ success: false, error: 'Invalid property ID' });
+    }
 
-    const feedbacks = await Feedback.find(filter).sort({ [sortBy]: sortOrder });
-    res.json(feedbacks);
+    const feedbacks = await Feedback.find({ property: propertyId })
+      .populate('user', 'name email profilePicture')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: feedbacks.length,
+      data: feedbacks
+    });
   } catch (error) {
-    console.error("Error fetching feedback:", error);
-    res.status(500).json({ error: "Failed to fetch feedback" });
+    console.error('Error fetching feedback:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
-// Get feedback by userId
-exports.getFeedbackByUserId = async (req, res) => {
+// @desc    Get average rating and review count for a property
+// @route   GET /api/feedback/property/:propertyId/average
+// @access  Public
+const getAverageRating = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const feedbacks = await Feedback.find({ userId }).sort({ createdAt: -1 });
+    const { propertyId } = req.params;
 
-    if (!feedbacks.length) {
-      return res.status(404).json({ message: "No feedback found for this user" });
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      return res.status(400).json({ success: false, error: 'Invalid property ID' });
     }
 
-    res.json(feedbacks);  // Send all feedbacks for the user
+    const stats = await Feedback.aggregate([
+      { $match: { property: new mongoose.Types.ObjectId(propertyId) } },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' },
+          reviewCount: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const result = stats[0] || { averageRating: 0, reviewCount: 0 };
+
+    res.status(200).json({ success: true, data: result });
   } catch (error) {
-    console.error("Error fetching feedback by userId:", error);
-    res.status(500).json({ error: "Failed to fetch feedback for user" });
+    console.error('Error calculating average rating:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };
 
-// Respond to feedback
-exports.respondToFeedback = async (req, res) => {
+// 🔁 Internal: Update average rating and review count on property
+const updatePropertyRating = async (propertyId) => {
   try {
-    const { id } = req.params;
-    const { response, respondedBy } = req.body;
+    const stats = await Feedback.aggregate([
+      { $match: { property: new mongoose.Types.ObjectId(propertyId) } },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' },
+          reviewCount: { $sum: 1 }
+        }
+      }
+    ]);
 
-    if (!response) {
-      return res.status(400).json({ error: "Response is required" });
+    if (stats.length > 0) {
+      await Property.findByIdAndUpdate(propertyId, {
+        averageRating: stats[0].averageRating.toFixed(1), // round to 1 decimal
+        reviewCount: stats[0].reviewCount
+      });
     }
-
-    const updatedFeedback = await Feedback.findByIdAndUpdate(
-      id,
-      { response, respondedAt: new Date(), respondedBy },
-      { new: true }
-    );
-
-    if (!updatedFeedback) {
-      return res.status(404).json({ error: "Feedback not found" });
-    }
-
-    res.json({ message: "Response sent", feedback: updatedFeedback });
-  } catch (error) {
-    console.error("Error responding to feedback:", error);
-    res.status(500).json({ error: "Failed to respond to feedback" });
+  } catch (err) {
+    console.error('Failed to update property rating:', err);
   }
 };
 
-// Delete feedback
-exports.deleteFeedback = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedFeedback = await Feedback.findByIdAndDelete(id);
-
-    if (!deletedFeedback) {
-      return res.status(404).json({ error: "Feedback not found" });
-    }
-
-    res.json({ message: "Feedback deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting feedback:", error);
-    res.status(500).json({ error: "Failed to delete feedback" });
-  }
+module.exports = {
+  submitFeedback,
+  getPropertyFeedback,
+  getAverageRating
 };

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import { FiEdit, FiSave, FiX } from 'react-icons/fi';
 
 const UserProfile = () => {
@@ -15,60 +14,46 @@ const UserProfile = () => {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [originalUser, setOriginalUser] = useState(null);
-  const [userId, setUserId] = useState(null);
 
-  // Get user ID from token
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUserId(decoded.id);
-      } catch (err) {
-        console.error('Error decoding token:', err);
-        setMessage({ text: 'Invalid authentication token', type: 'error' });
-      }
-    }
-  }, []);
-
-  // Fetch user data when userId is available
+  // Fetch user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!userId) return;
-      
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
       try {
-        const { data } = await axios.get(`/api/auth/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+        const { data } = await axios.get('http://localhost:5000/api/auth/profile', {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
+        // Handle both direct and nested response formats
+        const responseData = data.user || data;
         const userData = {
-          name: data.data.name || '',
-          email: data.data.email || '',
-          phone: data.data.phone || '',
-          role: data.data.role || '',
-          password: '', // Don't show the password
+          name: responseData.name || '',
+          email: responseData.email || '',
+          phone: responseData.phone || '',
+          role: responseData.role || '',
+          password: '',
         };
 
         setUser(userData);
         setOriginalUser(userData);
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Profile fetch error:', error);
         setMessage({ 
-          text: error.response?.data?.message || 'Failed to load user data', 
+          text: error.response?.data?.message || 'Failed to load profile', 
           type: 'error' 
         });
       }
     };
 
     fetchUserData();
-  }, [userId]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUser((prevUser) => ({
-      ...prevUser,
+    setUser(prev => ({
+      ...prev,
       [name]: value,
     }));
   };
@@ -87,17 +72,15 @@ const UserProfile = () => {
 
     try {
       const { data } = await axios.put(
-        `/api/auth/${userId}`,
+        'http://localhost:5000/api/auth/profile',
         {
           name: user.name,
           email: user.email,
           phone: user.phone,
-          ...(user.password && { password: user.password }), // Only include password if it's not empty
+          ...(user.password && { password: user.password }),
         },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         }
       );
 
@@ -106,21 +89,13 @@ const UserProfile = () => {
         type: 'success' 
       });
       setIsEditing(false);
-      
-      // Refresh user data after update
-      const { data: updatedUser } = await axios.get(`/api/auth/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      
-      setUser({
-        ...updatedUser.data,
-        password: '' // Reset password field
-      });
-      setOriginalUser(updatedUser.data);
+
+      // Update local state with returned data
+      const updatedData = data.user || data;
+      setUser({ ...updatedData, password: '' });
+      setOriginalUser(updatedData);
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Profile update error:', error);
       setMessage({
         text: error.response?.data?.message || 'Failed to update profile',
         type: 'error'
@@ -138,7 +113,6 @@ const UserProfile = () => {
           <button
             onClick={handleEditToggle}
             className="flex items-center text-blue-600 hover:text-blue-800"
-            disabled={!userId}
           >
             <FiEdit className="mr-1" /> Edit
           </button>

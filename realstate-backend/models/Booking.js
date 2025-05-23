@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bookingSchema = new mongoose.Schema({
   property: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "property",
+    ref: "Property",
     required: true
   },
   bookingDate: {
@@ -44,4 +44,4 @@ const bookingSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.models.Booking || mongoose.model("Bookings", bookingSchema);
+module.exports = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);

@@ -39,15 +39,12 @@ const upload = multer({
   },
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
-
+router.post('/bookings/payment-callback', paymentCallback);
 // Create a booking
 router.post('/book', upload.single('bookerIdCardFile'), book);
 
 // Get all bookings
 router.get('/', getAllBookings);
-
-// Get booking by booking ID
-router.get('/:bookingId', getBookingById);
 
 // Get bookings by property ID
 router.get('/property/:propertyId', getBookingsByPropertyId);
@@ -70,8 +67,9 @@ router.get('/payment-status/:paymentStatus', getBookingsByPaymentStatus);
 // Get bookings by type (rent/sell)
 router.get('/type/:type', getBookingsByType);
 
-router.post('/bookings/payment-callback', paymentCallback);
 
 router.put('/:bookingId/status', updateBookingStatus);
+// Get booking by booking ID
+router.get('/:bookingId', getBookingById);
 
 module.exports = router;

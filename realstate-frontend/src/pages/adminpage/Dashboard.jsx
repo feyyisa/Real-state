@@ -1,127 +1,229 @@
-import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
+  PointElement,
+  LineElement,
+  ArcElement,
 } from 'chart.js';
-import annotationPlugin from 'chartjs-plugin-annotation';
+import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
-  annotationPlugin
+  PointElement,
+  LineElement,
+  ArcElement
 );
 
-const Dashboard = () => {
-  const [userData, setUserData] = useState([]);
-  const [priceData, setPriceData] = useState([]);
+const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProperties: 0,
+    totalBookings: 0,
+    totalEarnings: 0,
+    pendingApprovals: 0,
+  });
+
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/analytics/user-registrations')
-      .then(res => setUserData(res.data))
-      .catch(err => console.error('User Data Error:', err));
+    const fetchAnalytics = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Unauthorized: No token found.');
+        return;
+      }
 
-    axios.get('http://localhost:5000/api/analytics/property-prices')
-      .then(res => setPriceData(res.data))
-      .catch(err => console.error('Price Data Error:', err));
+      try {
+        const response = await fetch('http://localhost:5000/api/analytics', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || 'Failed to fetch admin analytics.');
+        }
+
+        const data = await response.json();
+        if (data.role !== 'admin') {
+          setError('Access denied. This page is for admin users only.');
+          return;
+        }
+
+        setStats({
+          totalUsers: data.totalUsers,
+          totalProperties: data.totalProperties,
+          totalBookings: data.totalBookings,
+          totalEarnings: data.totalEarnings,
+          pendingApprovals: data.pendingApprovals,
+        });
+      } catch (err) {
+        console.error(err);
+        setError(err.message || 'Error fetching analytics.');
+      }
+    };
+
+    fetchAnalytics();
   }, []);
 
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  // Chart data per metric:
 
-  const registrationMap = userData.reduce((acc, item) => {
-    acc[item._id] = item.count;
-    return acc;
-  }, {});
-
-  const priceMap = priceData.reduce((acc, item) => {
-    acc[item._id] = item.averagePrice;
-    return acc;
-  }, {});
-
-  const combinedData = {
-    labels: months,
+  const usersChartData = {
+    labels: ['Today'],
     datasets: [
       {
-        label: 'User Registrations',
-        data: months.map((_, i) => registrationMap[i + 1] || 0),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        label: 'Total Users',
+        data: [stats.totalUsers],
+        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        fill: false,
         tension: 0.3,
-        yAxisID: 'y',
-      },
-      {
-        label: 'Average Property Price',
-        data: months.map((_, i) => priceMap[i + 1] || 0),
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        tension: 0.3,
-        yAxisID: 'y',
+        pointRadius: 6,
+        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
       },
     ],
   };
 
-  const annotations = months.reduce((acc, month, index) => {
-    acc[`line${index}`] = {
-      type: 'line',
-      scaleID: 'x',
-      value: month,
-      borderColor: 'gray',
-      borderWidth: 1,
-      borderDash: [4, 4],
-      label: {
-        display: false,
+  const propertiesChartData = {
+    labels: ['Properties'],
+    datasets: [
+      {
+        label: 'Total Properties',
+        data: [stats.totalProperties],
+        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+        borderRadius: 6,
       },
-    };
-    return acc;
-  }, {});
+    ],
+  };
 
-  const options = {
+  const bookingsChartData = {
+    labels: ['Confirmed Bookings'],
+    datasets: [
+      {
+        data: [stats.totalBookings],
+        backgroundColor: ['rgba(245, 158, 11, 0.7)'],
+        hoverOffset: 10,
+      },
+    ],
+  };
+
+  const earningsChartData = {
+    labels: ['Earnings'],
+    datasets: [
+      {
+        data: [stats.totalEarnings],
+        backgroundColor: ['rgba(239, 68, 68, 0.7)'],
+        hoverOffset: 15,
+      },
+    ],
+  };
+
+  const pendingApprovalsChartData = {
+    labels: ['Pending Approvals'],
+    datasets: [
+      {
+        label: 'Pending Approvals',
+        data: [stats.pendingApprovals],
+        backgroundColor: 'rgba(147, 197, 253, 0.7)',
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const pendingApprovalsOptions = {
+    indexAxis: 'y',
     responsive: true,
     plugins: {
-      legend: { position: 'top' },
-      title: {
-        display: true,
-        text: 'Monthly User Registrations & Average Property Prices',
-      },
-      annotation: {
-        annotations,
-      },
+      legend: { display: false },
+      title: { display: true, text: 'Pending Approvals' },
     },
     scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Count / Price',
-        },
-        beginAtZero: true,
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Month',
-        },
-      },
+      x: { beginAtZero: true },
     },
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Analytics Dashboard</h2>
-      <Line data={combinedData} options={options} />
+    <div className="p-4 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6"> Analytics report</h1>
+
+      {error && <p className="text-red-500 mb-6">{error}</p>}
+
+      {!error && (
+        <>
+          {/* Top Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
+            <StatCard title="Total Users" value={stats.totalUsers} />
+            <StatCard title="Total Properties" value={stats.totalProperties} />
+            <StatCard title="Total Bookings" value={stats.totalBookings} />
+            <StatCard title="Total Earnings" value={`$${stats.totalEarnings.toLocaleString()}`} />
+            <StatCard title="Pending Approvals" value={stats.pendingApprovals} />
+          </div>
+
+          {/* Detailed Chart Cards, 2 per row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <AnalyticsCard title="Total Users" value={stats.totalUsers}>
+              <Line
+                data={usersChartData}
+                options={{ responsive: true, plugins: { legend: { display: false } } }}
+              />
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Total Properties" value={stats.totalProperties}>
+              <Bar
+                data={propertiesChartData}
+                options={{ responsive: true, plugins: { legend: { display: false } } }}
+              />
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Total Bookings" value={stats.totalBookings}>
+              <Pie
+                data={bookingsChartData}
+                options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }}
+              />
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Total Earnings" value={`$${stats.totalEarnings.toLocaleString()}`}>
+              <Doughnut
+                data={earningsChartData}
+                options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }}
+              />
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Pending Approvals" value={stats.pendingApprovals}>
+              <Bar data={pendingApprovalsChartData} options={pendingApprovalsOptions} />
+            </AnalyticsCard>
+          </div>
+        </>
+      )}
     </div>
   );
 };
-export default Dashboard;
+
+const StatCard = ({ title, value }) => (
+  <div className="bg-white shadow-md rounded-lg p-4 text-center">
+    <h3 className="text-lg font-semibold text-gray-700">{title}</h3>
+    <p className="text-2xl font-bold text-blue-600 mt-2">{value}</p>
+  </div>
+);
+
+const AnalyticsCard = ({ title, value, children }) => (
+  <div className="bg-white shadow rounded-lg p-5 flex flex-col items-center">
+    <h2 className="text-xl font-semibold mb-2 text-gray-700">{title}</h2>
+    <p className="text-3xl font-bold text-blue-600 mb-4">{value}</p>
+    <div className="w-full max-w-xs h-48">{children}</div>
+  </div>
+);
+
+export default AdminDashboard;

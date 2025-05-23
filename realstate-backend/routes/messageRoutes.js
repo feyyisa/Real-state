@@ -1,16 +1,20 @@
-// routes/contactRoutes.js
 const express = require('express');
 const router = express.Router();
+
 const {
   submitContactForm,
-  getContactMessages
-} = require('../controllers/messageController');
+  getContactMessages,
+  respondToMessage,
+  deleteMessage,
+  getMessagesByUserEmail // ✅ Import this
+} = require('../controllers/messageController'); // Make sure it's exported there
+
 const { validateContactSubmission } = require('../middleware/validateContact');
 
-// POST /api/contact - Submit contact form
 router.post('/', validateContactSubmission, submitContactForm);
-
-// GET /api/contact - Get contact messages (admin)
 router.get('/', getContactMessages);
+router.put('/respond/:id', respondToMessage);
+router.delete('/delete/:id', deleteMessage);
+router.get('/user/:email', getMessagesByUserEmail); // ✅ Use it
 
 module.exports = router;

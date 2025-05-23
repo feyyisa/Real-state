@@ -123,7 +123,6 @@ const Register = () => {
             >
               <option value="customer">{t('register.customer')}</option>
               <option value="owner">{t('register.owner')}</option>
-              <option value="admin">{t('register.admin')}</option>
             </select>
           </div>
 

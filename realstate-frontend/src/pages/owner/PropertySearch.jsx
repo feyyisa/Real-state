@@ -12,37 +12,44 @@ const PropertySearch = () => {
   const [rooms, setRooms] = useState('');
   const [size, setSize] = useState('');
 
-  const BASE_URL = 'http://localhost:5000'; // Make sure your backend is running on this port
+  const BASE_URL = 'http://localhost:5000'; // your backend URL
+  const userId = localStorage.getItem('userId'); // get logged-in owner ID
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/api/properties`);
-        console.log('Fetched properties:', res.data);
-        setProperties(res.data);
+        const allProperties = res.data;
+
+        // Filter to show only the properties added by the logged-in owner
+        const ownerProperties = allProperties.filter(
+          (p) => String(p.owner) === String(userId)
+        );
+
+        setProperties(ownerProperties);
       } catch (error) {
-        console.error('Failed to fetch properties:', error.message);
+        console.error('Error fetching properties:', error.message);
       }
     };
 
     fetchProperties();
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     let results = [...properties];
 
     if (searchTerm) {
-      results = results.filter(p =>
+      results = results.filter((p) =>
         p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.location?.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.location?.city?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    if (minPrice) results = results.filter(p => p.price >= parseFloat(minPrice));
-    if (maxPrice) results = results.filter(p => p.price <= parseFloat(maxPrice));
-    if (rooms) results = results.filter(p => p.rooms === parseInt(rooms));
-    if (size) results = results.filter(p => p.size >= parseFloat(size));
+    if (minPrice) results = results.filter((p) => p.price >= parseFloat(minPrice));
+    if (maxPrice) results = results.filter((p) => p.price <= parseFloat(maxPrice));
+    if (rooms) results = results.filter((p) => p.rooms === parseInt(rooms));
+    if (size) results = results.filter((p) => p.size >= parseFloat(size));
 
     if (sortBy) {
       results.sort((a, b) => {
@@ -58,47 +65,48 @@ const PropertySearch = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Search Properties</h2>
+      <h2 className="text-2xl font-bold">Search Your Properties</h2>
 
+      {/* Filters */}
       <div className="grid md:grid-cols-3 gap-4">
         <input
           type="text"
           placeholder="Search by name or location"
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="border p-2 rounded-lg w-full"
         />
         <input
           type="number"
           placeholder="Min Price"
           value={minPrice}
-          onChange={e => setMinPrice(e.target.value)}
+          onChange={(e) => setMinPrice(e.target.value)}
           className="border p-2 rounded-lg w-full"
         />
         <input
           type="number"
           placeholder="Max Price"
           value={maxPrice}
-          onChange={e => setMaxPrice(e.target.value)}
+          onChange={(e) => setMaxPrice(e.target.value)}
           className="border p-2 rounded-lg w-full"
         />
         <input
           type="number"
           placeholder="Min Size (sqm)"
           value={size}
-          onChange={e => setSize(e.target.value)}
+          onChange={(e) => setSize(e.target.value)}
           className="border p-2 rounded-lg w-full"
         />
         <input
           type="number"
           placeholder="Number of Rooms"
           value={rooms}
-          onChange={e => setRooms(e.target.value)}
+          onChange={(e) => setRooms(e.target.value)}
           className="border p-2 rounded-lg w-full"
         />
         <select
           value={sortBy}
-          onChange={e => setSortBy(e.target.value)}
+          onChange={(e) => setSortBy(e.target.value)}
           className="border p-2 rounded-lg w-full"
         >
           <option value="">Sort by</option>
@@ -108,7 +116,7 @@ const PropertySearch = () => {
         </select>
       </div>
 
-      {/* Property Results */}
+      {/* Property Display */}
       <div className="grid md:grid-cols-3 gap-6">
         {filteredProperties.length > 0 ? (
           filteredProperties.map((property) => (

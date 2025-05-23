@@ -1,23 +1,37 @@
+// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/authController');
-const { getOwners } = require('../controllers/authController');
-const { authenticateUser: protect } = require('../middleware/authMiddleware'); // assuming 'protect' is the same
+const {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  getAllUsers,
+  getUserById,
+  getUsersByRole,
+  updateUserProfile,
+  deleteUser,
+  updateProfile,
+  getUserProfile,
+  updateUser
+} = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware'); // middleware to protect routes
 
-// Routes
-router.get('/profile', protect, authController.getUserProfile);
-router.put('/update', protect, authController.updateUserProfile);
+// Public routes
+router.post('/register', registerUser);
+router.post('/login', loginUser);
 
-router.post('/register', authController.registerUser);
-router.post('/login', authController.loginUser);
-router.get('/me', protect, authController.getCurrentUser);
-router.get('/', authController.getAllUsers);
-router.get('/role/owner', getOwners); 
-router.get('/:id', authController.getUserById);
-router.get('/role/:role', authController.getUsersByRole);
-router.put('/:id', authController.updateUser);
-router.delete('/:id', authController.deleteUser);
-// Backend route for fetching owners
+// Protected routes
+router.get('/profile', protect, getCurrentUser); // current authenticated user
+router.put('/profile', protect, updateProfile); // update current user
+router.get('/me', protect, getUserProfile); // optional: another current user profile route
+
+// Admin or Protected Routes (adjust permissions in middleware if needed)
+router.get('/', protect, getAllUsers);
+router.get('/:id', protect, getUserById);
+router.get('/role/:role', protect, getUsersByRole);
+router.put('/:id', protect, updateUserProfile);
+router.delete('/:id', protect, deleteUser);
+router.put('/:id,', protect, updateUser);
 
 
 

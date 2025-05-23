@@ -53,7 +53,14 @@ const resources = {
         phoneLabel: "Phone:",
         addressLabel: "Address:"
       },
-
+dashboard: {
+        title: "Admin Dashboard",
+        totalUsers: "Total Users",
+        totalProperties: "Total Properties",
+        totalBookings: "Total Bookings",
+        totalEarnings: "Total Earnings",
+        pendingApprovals: "Pending Approvals",
+      },
       about: {
         title: "About Us",
         intro: "Welcome to our Real Estate Management System, a platform designed to simplify property transactions for buyers, sellers, and real estate agents...",
@@ -187,6 +194,14 @@ login: {
         emailLabel: "ኢሜይል:",
         phoneLabel: "ስልክ:",
         addressLabel: "አድራሻ:"
+      }, 
+      dashboard: {
+        title: "የአስተዳዳሪ ዳሽቦርድ",
+        totalUsers: "ጠቅላላ ተጠቃሚዎች",
+        totalProperties: "ጠቅላላ ንብረቶች",
+        totalBookings: "ጠቅላላ ቦታ መያዣዎች",
+        totalEarnings: "ጠቅላላ ገቢዎች",
+        pendingApprovals: "በመጠባበቅ ላይ ያሉ እውዓቶች",
       },
       about: {
         title: "ስለ እኛ",
@@ -325,7 +340,14 @@ navbar: {
         phoneLabel: "Bilbila:",
         addressLabel: "Teessoo:"
       },
-
+dashboard: {
+        title: "Daashiboordii Adminii",
+        totalUsers: "Waliigala Hirmaattota",
+        totalProperties: "Waliigala Manoota",
+        totalBookings: "Waliigala Fuudhamee",
+        totalEarnings: "Waliigala Argannoo",
+        pendingApprovals: "Hayyama Eeggataa",
+      },
       about: {
         title: "Waa’ee Keenya",
         intro: "Sirna Bulchiinsa Teessoo keenyaaf baga nagaan dhuftan...",
