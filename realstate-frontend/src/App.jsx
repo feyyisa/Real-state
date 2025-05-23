@@ -1,5 +1,5 @@
 // React Router DOM
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 // Auth Context Provider
 import { AuthProvider } from './context/AuthContext';
@@ -17,13 +17,12 @@ import FeedbackForm from './pages/costumer/FeedbackForm';
 import PaymentSuccess from './pages/costumer/PaymentSuccess';
 import PaymentPage from './pages/costumer/PaymentPage';
 import BookingHouse from './pages/costumer/BookingHouse';
-
+import RealEstateChat from './RealEstateChat';
 // Admin Pages
 import Dashboard from './pages/adminpage/Dashboard';
 import UserManage from './pages/adminpage/UserManage';
 import PropertyManage from './pages/adminpage/PropertyManage';
 import FedbackManage from './pages/adminpage/FedbackManage';
-//import FeedbackList from './pages/adminpage/FeedbackList';
 
 // Owner Pages
 import AddPropertyForm from './pages/owner/AddPropertyForm';
@@ -33,6 +32,7 @@ import PropertySearch from './pages/owner/PropertySearch';
 import OwnerPropertyManager from './pages/owner/OwnerPropertyManager';
 import OwnerBookingManager from './pages/owner/OwnerBookingManager';
 import FeedbackList from './pages/owner/FeedbackList';
+
 // Components
 import Navbar from './components/navbar';
 import Footer from './components/footer';
@@ -48,14 +48,22 @@ import OwnerLayout from './components/OwnerLayout';
 import AdminLayout from './components/AdminLayout';
 
 function AppContent() {
+  const location = useLocation();
+  const hideFooterForRoutes = [
+    '/admin', '/owner'
+  ];
+
+  // Checks if the current route starts with /admin or /owner
+  const shouldHideFooter = hideFooterForRoutes.some(prefix => location.pathname.startsWith(prefix));
+
   return (
     <>
       <Routes>
-        {/* 🔓 Public Routes */}
+        {/* Public Routes */}
         <Route path="/login" element={<><LanguageSwitcher /><Login /></>} />
         <Route path="/register" element={<><LanguageSwitcher /><Register /></>} />
 
-        {/* 👤 Customer Routes */}
+        {/* Customer Routes */}
         <Route path="/" element={<><Navbar /><LanguageSwitcher /><Home /></>} />
         <Route path="/contact" element={<><Navbar /><LanguageSwitcher /><Contact /></>} />
         <Route path="/pricing" element={<><Navbar /><LanguageSwitcher /><Pricing /></>} />
@@ -63,7 +71,7 @@ function AppContent() {
         <Route path="/about" element={<><Navbar /><LanguageSwitcher /><About /></>} />
         <Route path="/faq" element={<><Navbar /><LanguageSwitcher /><FAQPage /></>} />
 
-        {/* 🔒 Customer Protected Routes */}
+        {/* Customer Protected Routes */}
         <Route path="/bookingSummary" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingSummary /></ProtectedRoute>} />
         <Route path="/socialmedia" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><SocialMediaShare /></ProtectedRoute>} />
         <Route path="/userprofileupdate" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><UserProfileUpdate /></ProtectedRoute>} />
@@ -74,117 +82,28 @@ function AppContent() {
         <Route path="/mymessage" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><MyMessege /></ProtectedRoute>} />
         <Route path="/feedbackform" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><FeedbackForm /></ProtectedRoute>} />
         <Route path="/costumer/customerdashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerDashboard /></ProtectedRoute>}>
-          
           <Route path="feedbackform" element={<FeedbackForm />} />
+          <Route path="realestatechat" element={<RealEstateChat />} />
         </Route>
 
-        {/* 🔒 Admin Protected Routes */}
-        <Route path="/admin/dashboard"element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout> <LanguageSwitcher /> <Dashboard /></AdminLayout></ProtectedRoute>}/>
-        <Route
-          path="/admin/manageuser"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout>
-                <LanguageSwitcher />
-                <UserManage />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/manageproperty"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout>
-                <LanguageSwitcher />
-                <PropertyManage />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/managefedback"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout>
-                <LanguageSwitcher />
-                <FedbackManage />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
+        {/* Admin Protected Routes */}
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><Dashboard /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/manageuser" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><UserManage /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/manageproperty" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><PropertyManage /></AdminLayout></ProtectedRoute>} />
+        <Route path="/admin/managefedback" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><FedbackManage /></AdminLayout></ProtectedRoute>} />
 
-        {/* 🔒 Owner Protected Routes */}
-        <Route
-          path="/owner/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <LanguageSwitcher />
-                <OwnerDashboard />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/addpropertyform"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <LanguageSwitcher />
-                <AddPropertyForm />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/editpropertyform/:id"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <LanguageSwitcher />
-                <EditPropertyForm />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/ownerpropertymanager"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <LanguageSwitcher />
-                <OwnerPropertyManager />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/ownerbookingmanager"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <LanguageSwitcher />
-                <OwnerBookingManager />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/searchproperty"
-          element={
-            <ProtectedRoute allowedRoles={['owner']}>
-              <OwnerLayout>
-                <LanguageSwitcher />
-                <PropertySearch />
-              </OwnerLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/feedbacklist" element={<><Navbar /><LanguageSwitcher /><FeedbackList /></>} />
+        {/* Owner Protected Routes */}
+        <Route path="/owner/dashboard" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><OwnerDashboard /></OwnerLayout></ProtectedRoute>} />
+        <Route path="/owner/addpropertyform" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><AddPropertyForm /></OwnerLayout></ProtectedRoute>} />
+        <Route path="/owner/editpropertyform/:id" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><EditPropertyForm /></OwnerLayout></ProtectedRoute>} />
+        <Route path="/owner/ownerpropertymanager" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><OwnerPropertyManager /></OwnerLayout></ProtectedRoute>} />
+        <Route path="/owner/ownerbookingmanager" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><OwnerBookingManager /></OwnerLayout></ProtectedRoute>} />
+        <Route path="/owner/searchproperty" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><PropertySearch /></OwnerLayout></ProtectedRoute>} />
+        <Route path="/owner/feedbacklist" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><FeedbackList /></OwnerLayout></ProtectedRoute>} />
       </Routes>
 
-      <Footer />
+      {/* Only show Footer for non-admin and non-owner routes */}
+      {!shouldHideFooter && <Footer />}
     </>
   );
 }

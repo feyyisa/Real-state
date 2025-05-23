@@ -14,8 +14,11 @@ const ManageUsers = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (token) fetchUsers();
-  }, [token]);
+  if (token) {
+    fetchUsers();
+  }
+}, [token]);
+
 
   const fetchUsers = async () => {
     try {

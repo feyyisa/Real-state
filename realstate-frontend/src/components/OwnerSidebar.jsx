@@ -12,53 +12,58 @@ const OwnerSidebar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  const linkBase = "flex justify-center items-center w-full h-16 transition-colors duration-200";
+  const linkBase = "flex justify-center items-center w-full h-12 transition-colors duration-200";
   const activeClass = "bg-gray-900 text-white";
   const inactiveClass = "hover:bg-gray-700 text-white";
 
   return (
     <div
-      className="bg-gray-800 text-white fixed top-0 left-0 min-h-screen shadow-lg flex flex-col items-center py-6 space-y-6 z-50"
-      style={{ width: "15vw" }} // 15% viewport width
+      className="bg-gray-800 text-white fixed top-0 left-0 min-h-screen shadow-lg flex flex-col items-center py-3 z-50"
+      style={{ width: "15vw" }}
     >
-      <div className="text-white text-3xl">
-        🏠
-      </div>
-      <nav className="flex flex-col space-y-4 w-full px-2">
+      <div className="text-white text-xl mb-2">🏠</div>
+      <nav className="flex flex-col w-full px-2">
         <Link
           to="/owner/dashboard"
           title="Dashboard"
-          className={`${linkBase} ${isActive("/owner/dashboard") ? activeClass : inactiveClass}`}
+          className={`${linkBase} ${isActive("/owner/dashboard") ? activeClass : inactiveClass} mb-1`}
         >
-          <LayoutDashboard size={28} />
+          <LayoutDashboard size={20} />
         </Link>
         <Link
           to="/owner/addpropertyform"
           title="Add New Property"
-          className={`${linkBase} ${isActive("/owner/addpropertyform") ? activeClass : inactiveClass}`}
+          className={`${linkBase} ${isActive("/owner/addpropertyform") ? activeClass : inactiveClass} mb-1`}
         >
-          <PlusSquare size={28} />
+          <PlusSquare size={20} />
         </Link>
         <Link
           to="/owner/ownerpropertymanager"
           title="Manage Properties"
-          className={`${linkBase} ${isActive("/owner/ownerpropertymanager") ? activeClass : inactiveClass}`}
+          className={`${linkBase} ${isActive("/owner/ownerpropertymanager") ? activeClass : inactiveClass} mb-1`}
         >
-          <Building2 size={28} />
+          <Building2 size={20} />
         </Link>
         <Link
           to="/owner/searchproperty"
           title="Search Properties"
-          className={`${linkBase} ${isActive("/owner/searchproperty") ? activeClass : inactiveClass}`}
+          className={`${linkBase} ${isActive("/owner/searchproperty") ? activeClass : inactiveClass} mb-1`}
         >
-          <Search size={28} />
+          <Search size={20} />
         </Link>
         <Link
           to="/owner/ownerbookingmanager"
           title="Bookings"
-          className={`${linkBase} ${isActive("/owner/ownerbookingmanager") ? activeClass : inactiveClass}`}
+          className={`${linkBase} ${isActive("/owner/ownerbookingmanager") ? activeClass : inactiveClass} mb-1`}
         >
-          <CalendarCheck size={28} />
+          <CalendarCheck size={20} />
+        </Link>
+        <Link
+          to="/owner/feedbacklist"
+          title="Feedback List"
+          className={`${linkBase} ${isActive("/owner/feedbacklist") ? activeClass : inactiveClass}`}
+        >
+          <CalendarCheck size={20} />
         </Link>
       </nav>
     </div>

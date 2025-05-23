@@ -3,8 +3,11 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import villaImage from "../../assets/villa2.webp";
 import FeedbackForm from "./FeedbackForm";
+import FeedbackList from "../owner/FeedbackList";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineKingBed, MdOutlineBathtub, MdDateRange } from 'react-icons/md';
+//import FeedbackList from './../owner/FeedbackList';
+import RealEstateChat from "../../RealEstateChat";
 
 // Ethiopian regions and sample cities
 const ethiopianRegions = [
@@ -67,7 +70,7 @@ const Home = () => {
         setError(null);
       } catch (err) {
         console.error("Error fetching properties:", err);
-        setError(t("errorLoading"));
+        setError(t("home.errorLoading"));
       } finally {
         setLoading(false);
       }
@@ -76,10 +79,9 @@ const Home = () => {
     fetchProperties();
   }, [t]);
 
- // In the Home component, update the handleBookAndPay function:
-const handleBookAndPay = (propertyId) => {
-  navigate(`/bookhouse/${propertyId}`);
-};
+  const handleBookAndPay = (propertyId) => {
+    navigate(`/bookhouse/${propertyId}`);
+  };
 
   const filteredProperties = properties
     .filter((property) => (typeFilter ? property?.listingType === typeFilter : true))
@@ -128,7 +130,8 @@ const handleBookAndPay = (propertyId) => {
         style={{ backgroundImage: `url(${villaImage})` }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <h1 className="text-white text-3xl font-semibold">{t("findYourHome")}</h1>
+          <h1 className="text-white text-3xl font-semibold">{t("home.findYourHome")}</h1>
+          <RealEstateChat />
         </div>
       </header>
 
@@ -139,20 +142,20 @@ const handleBookAndPay = (propertyId) => {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="border p-2 rounded"
           >
-            <option value="">{t("filterType")}</option>
-            <option value="rent">{t("rent")}</option>
-            <option value="sell">{t("buy")}</option>
+            <option value="">{t("home.filterType")}</option>
+            <option value="rent">{t("home.rent")}</option>
+            <option value="sell">{t("home.buy")}</option>
           </select>
           <select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
             className="border p-2 rounded"
           >
-            <option value="">{t("sortBy")}</option>
-            <option value="price-asc">{t("priceAsc")}</option>
-            <option value="price-desc">{t("priceDesc")}</option>
-            <option value="size-asc">{t("sizeAsc")}</option>
-            <option value="size-desc">{t("sizeDesc")}</option>
+            <option value="">{t("home.sortBy")}</option>
+            <option value="price-asc">{t("home.priceAsc")}</option>
+            <option value="price-desc">{t("home.priceDesc")}</option>
+            <option value="size-asc">{t("home.sizeAsc")}</option>
+            <option value="size-desc">{t("home.sizeDesc")}</option>
           </select>
         </div>
 
@@ -162,7 +165,7 @@ const handleBookAndPay = (propertyId) => {
             onChange={handleRegionChange}
             className="border p-2 rounded"
           >
-            <option value="">Filter by Region</option>
+            <option value="">{t("home.filterByRegion")}</option>
             {ethiopianRegions.map((region) => (
               <option key={region} value={region}>{region}</option>
             ))}
@@ -174,7 +177,7 @@ const handleBookAndPay = (propertyId) => {
             disabled={!selectedRegion}
             className="border p-2 rounded"
           >
-            <option value="">Filter by City</option>
+            <option value="">{t("home.filterByCity")}</option>
             {selectedRegion && citiesByRegion[selectedRegion]?.map((city) => (
               <option key={city} value={city}>{city}</option>
             ))}
@@ -183,14 +186,14 @@ const handleBookAndPay = (propertyId) => {
           <div className="grid grid-cols-2 gap-2">
             <input
               type="number"
-              placeholder="Min Price"
+              placeholder={t("home.minPrice")}
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               className="border p-2 rounded"
             />
             <input
               type="number"
-              placeholder="Max Price"
+              placeholder={t("home.maxPrice")}
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               className="border p-2 rounded"
@@ -203,7 +206,7 @@ const handleBookAndPay = (propertyId) => {
               onChange={(e) => setBedroomsFilter(e.target.value)}
               className="border p-2 rounded"
             >
-              <option value="">Bedrooms</option>
+              <option value="">{t("home.bedrooms")}</option>
               <option value="1">1+</option>
               <option value="2">2+</option>
               <option value="3">3+</option>
@@ -216,7 +219,7 @@ const handleBookAndPay = (propertyId) => {
               onChange={(e) => setBathroomsFilter(e.target.value)}
               className="border p-2 rounded"
             >
-              <option value="">Bathrooms</option>
+              <option value="">{t("home.bathrooms")}</option>
               <option value="1">1+</option>
               <option value="2">2+</option>
               <option value="3">3+</option>
@@ -228,7 +231,7 @@ const handleBookAndPay = (propertyId) => {
 
       <section className="py-6 px-6">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          {t("featuredProperties")}
+          {t("home.featuredProperties")}
         </h2>
         {loading ? (
           <div className="flex justify-center">
@@ -254,7 +257,7 @@ const handleBookAndPay = (propertyId) => {
                       }}
                     />
                     <div className="absolute top-2 right-2 bg-white bg-opacity-80 px-2 py-1 rounded text-sm font-semibold">
-                      {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
+                      {property.listingType === 'rent' ? t("home.forRent") : t("home.forSale")}
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
                       <p className="text-white font-bold text-lg">{formatPrice(property.price)}</p>
@@ -275,29 +278,29 @@ const handleBookAndPay = (propertyId) => {
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h2v2H7V5zm4 0h2v2h-2V5zm-4 4h2v2H7V9zm4 0h2v2h-2V9zm-4 4h2v2H7v-2zm4 0h2v2h-2v-2z" clipRule="evenodd" />
                         </svg>
-                        {property.size} sqm
+                        {property.size} {t("home.sqm")}
                       </div>
                       <div className="flex items-center">
                         <MdOutlineKingBed className="h-5 w-5"/>
-                        {property.bedrooms || 0} Beds
+                        {property.bedrooms || 0} {t("home.beds")}
                       </div>
                       <div className="flex items-center">
                         <MdOutlineBathtub className="h-5 w-5"/>
-                        {property.bathrooms || 0} Baths
+                        {property.bathrooms || 0} {t("home.baths")}
                       </div>
                     </div>
                     <button
                       onClick={() => setSelectedProperty(property)}
                       className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors duration-300"
                     >
-                      View Details
+                      {t("home.viewDetails")}
                     </button>
                   </div>
                 </div>
               ))
             ) : (
               <div className="col-span-full text-center py-10">
-                <p className="text-gray-500 text-lg">No properties found matching your criteria</p>
+                <p className="text-gray-500 text-lg">{t("home.noProperties")}</p>
                 <button 
                   onClick={() => {
                     setTypeFilter('');
@@ -310,7 +313,7 @@ const handleBookAndPay = (propertyId) => {
                   }}
                   className="mt-4 text-blue-600 hover:underline"
                 >
-                  Clear all filters
+                  {t("home.clearFilters")}
                 </button>
               </div>
             )}
@@ -342,7 +345,7 @@ const handleBookAndPay = (propertyId) => {
                 
                 {/* Additional Images Section */}
                 <div className="p-4 bg-gray-50">
-                  <h3 className="text-lg font-semibold mb-2">Property Images</h3>
+                  <h3 className="text-lg font-semibold mb-2">{t("home.propertyImages")}</h3>
                   <div className="grid grid-cols-3 gap-2">
                     {selectedProperty.bedroomImage && (
                       <div className="h-32 rounded overflow-hidden">
@@ -354,7 +357,7 @@ const handleBookAndPay = (propertyId) => {
                             e.target.src = 'https://via.placeholder.com/400x300?text=Bedroom+Image';
                           }}
                         />
-                        <p className="text-xs text-center mt-1">Bedroom</p>
+                        <p className="text-xs text-center mt-1">{t("home.bedrooms")}</p>
                       </div>
                     )}
                     {selectedProperty.bathroomImage && (
@@ -367,7 +370,7 @@ const handleBookAndPay = (propertyId) => {
                             e.target.src = 'https://via.placeholder.com/400x300?text=Bathroom+Image';
                           }}
                         />
-                        <p className="text-xs text-center mt-1">Bathroom</p>
+                        <p className="text-xs text-center mt-1">{t("home.bathrooms")}</p>
                       </div>
                     )}
                     {selectedProperty.otherImage && (
@@ -380,7 +383,7 @@ const handleBookAndPay = (propertyId) => {
                             e.target.src = 'https://via.placeholder.com/400x300?text=Property+Image';
                           }}
                         />
-                        <p className="text-xs text-center mt-1">Property</p>
+                        <p className="text-xs text-center mt-1">{t("home.property")}</p>
                       </div>
                     )}
                   </div>
@@ -400,52 +403,52 @@ const handleBookAndPay = (propertyId) => {
                       </div>
                     </div>
                     <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                      {selectedProperty.listingType === 'rent' ? 'For Rent' : 'For Sale'}
+                      {selectedProperty.listingType === 'rent' ? t("home.forRent") : t("home.forSale")}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2">
-                      <h3 className="text-lg font-semibold mb-2">Description</h3>
+                      <h3 className="text-lg font-semibold mb-2">{t("home.description")}</h3>
                       <p className="text-gray-700">{selectedProperty.description}</p>
                       
                       <div className="mt-6 grid grid-cols-2 gap-4">
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-gray-800 mb-2">Property Details</h4>
+                          <h4 className="font-semibold text-gray-800 mb-2">{t("home.propertyDetails")}</h4>
                           <ul className="space-y-2">
                             <li className="flex justify-between">
-                              <span className="text-gray-600">Price:</span>
+                              <span className="text-gray-600">{t("home.price")}:</span>
                               <span className="font-medium">{formatPrice(selectedProperty.price)}</span>
                             </li>
                             <li className="flex justify-between">
-                              <span className="text-gray-600">Size:</span>
-                              <span className="font-medium">{selectedProperty.size} sqm</span>
+                              <span className="text-gray-600">{t("home.size")}:</span>
+                              <span className="font-medium">{selectedProperty.size} {t("home.sqm")}</span>
                             </li>
                             <li className="flex justify-between">
-                              <span className="text-gray-600">Bedrooms:</span>
+                              <span className="text-gray-600">{t("home.bedrooms")}:</span>
                               <span className="font-medium">{selectedProperty.bedrooms || 0}</span>
                             </li>
                             <li className="flex justify-between">
-                              <span className="text-gray-600">Bathrooms:</span>
+                              <span className="text-gray-600">{t("home.bathrooms")}:</span>
                               <span className="font-medium">{selectedProperty.bathrooms || 0}</span>
                             </li>
                             <li className="flex justify-between">
-                              <span className="text-gray-600">Year Built:</span>
+                              <span className="text-gray-600">{t("home.yearBuilt")}:</span>
                               <span className="font-medium">{selectedProperty.yearBuilt || 'N/A'}</span>
                             </li>
                             <li className="flex justify-between">
-                              <span className="text-gray-600">Condition:</span>
+                              <span className="text-gray-600">{t("home.condition")}:</span>
                               <span className="font-medium">{selectedProperty.condition || 'N/A'}</span>
                             </li>
                           </ul>
                         </div>
 
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-gray-800 mb-2">Features & Amenities</h4>
+                          <h4 className="font-semibold text-gray-800 mb-2">{t("home.featuresAmenities")}</h4>
                           <div className="space-y-2">
                             {selectedProperty.features?.length > 0 && (
                               <div>
-                                <h5 className="text-sm font-medium text-gray-700">Features:</h5>
+                                <h5 className="text-sm font-medium text-gray-700">{t("home.features")}:</h5>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {selectedProperty.features.map((feature, idx) => (
                                     <span key={idx} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
@@ -457,7 +460,7 @@ const handleBookAndPay = (propertyId) => {
                             )}
                             {selectedProperty.amenities && (
                               <div>
-                                <h5 className="text-sm font-medium text-gray-700">Amenities:</h5>
+                                <h5 className="text-sm font-medium text-gray-700">{t("home.amenities")}:</h5>
                                 <div className="grid grid-cols-2 gap-1 mt-1">
                                   {Object.entries(selectedProperty.amenities).map(([key, value]) => (
                                     <div key={key} className="flex items-center">
@@ -474,20 +477,20 @@ const handleBookAndPay = (propertyId) => {
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-4">Contact & Booking</h3>
+                      <h3 className="text-lg font-semibold mb-4">{t("home.contactBooking")}</h3>
                       <div className="space-y-4">
                         <div>
-                          <p className="text-gray-600">Status:</p>
+                          <p className="text-gray-600">{t("home.status")}:</p>
                           <p className={`font-medium ${
                             selectedProperty.status === 'available' ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {selectedProperty.status === 'available' ? 'Available' : 'Booked'}
+                            {selectedProperty.status === 'available' ? t("home.available") : t("home.booked")}
                           </p>
                         </div>
                         
                         {selectedProperty.availableFrom && (
                           <div>
-                            <p className="text-gray-600">Available From:</p>
+                            <p className="text-gray-600">{t("home.availableFrom")}:</p>
                             <p className="font-medium">
                               {new Date(selectedProperty.availableFrom).toLocaleDateString()}
                             </p>
@@ -503,14 +506,14 @@ const handleBookAndPay = (propertyId) => {
                               : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                           }`}
                         >
-                          {selectedProperty.status === 'available' ? 'Book Now' : 'Currently Booked'}
+                          {selectedProperty.status === 'available' ? t("home.bookNow") : t("home.currentlyBooked")}
                         </button>
 
                         <button
                           onClick={() => setSelectedProperty(null)}
                           className="w-full py-2 px-4 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300"
                         >
-                          Close
+                          {t("home.close")}
                         </button>
                       </div>
                     </div>

@@ -12,8 +12,7 @@ export default function Navbar() {
 
   return (
     <div className="bg-green-400">
-      <h1 className="text-2xl font-bold text-gray-700 text-center">Real Estate</h1>
-
+      <h1 className="text-2xl font-bold text-gray-700 text-center">{t("navbar.title")}</h1>
       {/* Navbar Items */}
       <ul className="flex justify-end space-x-6 text-white font-semibold mt-2">
         <li>

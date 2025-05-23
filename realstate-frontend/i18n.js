@@ -3,30 +3,53 @@ import { initReactI18next } from 'react-i18next';
 
 const resources = {
   en: {
-    translation: {
+    translation: {     
+    home: {
       findYourHome: "Find Your Dream Home",
-      searchLocation: "Search by Location...",
       filterType: "Filter by Type",
-      filterStatus: "Filter by Status",
-      sortBy: "Sort By",
       rent: "Rent",
       buy: "Buy",
-      status: "Status",
+      sortBy: "Sort By",
       priceAsc: "Price: Low to High",
       priceDesc: "Price: High to Low",
       sizeAsc: "Size: Small to Large",
       sizeDesc: "Size: Large to Small",
       featuredProperties: "Featured Properties",
-      loading: "Loading properties...",
-      errorLoading: "Failed to load properties.",
-      noProperties: "No properties found.",
-      view: "View",
-      price: "Price",
-      type: "Type",
-      size: "Size",
+      errorLoading: "Error loading properties. Please try again later.",
+      viewDetails: "View Details",
+      propertyImages: "Property Images",
+      description: "Description",
+      propertyDetails: "Property Details",
+      featuresAmenities: "Features & Amenities",
+      contactBooking: "Contact & Booking",
+      status: "Status",
+      available: "Available",
+      booked: "Booked",
+      availableFrom: "Available From",
+      bookNow: "Book Now",
+      currentlyBooked: "Currently Booked",
       close: "Close",
-      
-
+      noProperties: "No properties found matching your criteria",
+      clearFilters: "Clear all filters",
+      bedrooms: "Bedrooms",
+      bathrooms: "Bathrooms",
+      forRent: "For Rent",
+      forSale: "For Sale",
+      beds: "Beds",
+      baths: "Baths",
+      price: "Price",
+      size: "Size",
+      yearBuilt: "Year Built",
+      condition: "Condition",
+      features: "Features",
+      amenities: "Amenities",
+      filterByRegion: "Filter by Region",
+      filterByCity: "Filter by City",
+      minPrice: "Min Price",
+      maxPrice: "Max Price",
+      sqm: "sqm",
+      property: "Property"
+    },
       contact: {
         title: "Contact Us",
         subtitle: "Have any questions? Feel free to reach out to us. We're here to help you with all your real estate needs.",
@@ -53,6 +76,30 @@ const resources = {
         phoneLabel: "Phone:",
         addressLabel: "Address:"
       },
+      services: {
+      heading: 'Our Services',
+      description: 'We provide a wide range of real estate services to help buyers, sellers, and property owners manage their transactions efficiently.',
+      propertyListings: {
+        title: 'Property Listings',
+        desc: 'Browse thousands of verified property listings with detailed descriptions and images.'
+      },
+      propertyManagement: {
+        title: 'Property Management',
+        desc: 'Manage your property listings, update details, and track bookings easily.'
+      },
+      advancedSearch: {
+        title: 'Advanced Search & Filters',
+        desc: 'Use powerful filters to search properties based on location, price, and amenities.'
+      },
+      securePayment: {
+        title: 'Secure Payment Processing',
+        desc: 'Make hassle-free transactions with our secure and reliable payment gateway.'
+      },
+      customerSupport: {
+        title: 'Customer Support',
+        desc: 'Get assistance anytime with our dedicated 24/7 customer support team.'
+      }
+    },
 dashboard: {
         title: "Admin Dashboard",
         totalUsers: "Total Users",
@@ -140,7 +187,8 @@ login: {
   contact: "Contact",
   faq: "FAQ",
   login: "Login",
-  register: "Register"
+  register: "Register",
+title: "Real Estate",
 }
 
     }
@@ -148,27 +196,52 @@ login: {
 
   am: {
     translation: {
-      findYourHome: "የሕልምዎን ቤት ያግኙ",
-      searchLocation: "በአካባቢ ፍለጋ...",
-      filterType: "በአይነት አጣራ",
-      filterStatus: "በሁኔታ አጣራ",
-      sortBy: "መለያየት በ...",
-      rent: "ኪራይ",
-      buy: "ግዢ",
+    home: {
+      findYourHome: "የምትፈልጉትን ቤት �ግኙ",
+      filterType: "በዓይነት አጣራ",
+      rent: "መከራየት",
+      buy: "መግዛት",
+      sortBy: "በማዘጋጀት",
+      priceAsc: "ዋጋ: ከዝቅ ወደ ከፍታ",
+      priceDesc: "ዋጋ: ከከፍታ ወደ ዝቅታ",
+      sizeAsc: "መጠን: ከትንሽ ወደ ትልቅ",
+      sizeDesc: "መጠን: ከትልቅ ወደ ትንሽ",
+      featuredProperties: "የተለዩ ቤቶች",
+      errorLoading: "ቤቶችን በማምጣት ላይ ስህተት ተፈጥሯል። እባክዎ ቆይተው ይሞክሩ።",
+      viewDetails: "ዝርዝሮችን ይመልከቱ",
+      propertyImages: "የቤቱ ፎቶዎች",
+      description: "መግለጫ",
+      propertyDetails: "የቤቱ ዝርዝሮች",
+      featuresAmenities: "መለያ ባህሪያት & አገልግሎቶች",
+      contactBooking: "አግኙን & ማስያዝ",
       status: "ሁኔታ",
-      priceAsc: "ዋጋ: ከታነቀ እስከ ከፍተኛ",
-      priceDesc: "ዋጋ: ከፍተኛ እስከ ታች",
-      sizeAsc: "መጠን: ከትንሽ እስከ ትልቅ",
-      sizeDesc: "መጠን: ከትልቅ እስከ ትንሽ",
-      featuredProperties: "የተለዩ ንብረቶች",
-      loading: "ንብረቶችን በመጫን ላይ...",
-      errorLoading: "ንብረቶችን ማግኘት አልተቻለም።",
-      noProperties: "ምንም ንብረት አልተገኘም።",
-      view: "ይመልከቱ",
-      price: "ዋጋ",
-      type: "አይነት",
-      size: "መጠን",
+      available: "የሚገኝ",
+      booked: "ተያይዟል",
+      availableFrom: "ከዚህ ቀን ጀምሮ ይገኛል",
+      bookNow: "አሁን ያስያዙ",
+      currentlyBooked: "ተያይዟል",
       close: "ዝጋ",
+      noProperties: "ከምትፈልጉት ጋር የሚመጣጠን ቤት አልተገኘም",
+      clearFilters: "ሁሉንም አጣራዎች አጥፋ",
+      bedrooms: "ክፍሎች",
+      bathrooms: "መታጠቢያ ቤቶች",
+      forRent: "ለኪራይ",
+      forSale: "ለመሸጥ",
+      beds: "አልጋዎች",
+      baths: "መታጠቢያዎች",
+      price: "ዋጋ",
+      size: "መጠን",
+      yearBuilt: "የተገነባበት �መት",
+      condition: "ሁኔታ",
+      features: "መለያ ባህሪያት",
+      amenities: "አገልግሎቶች",
+      filterByRegion: "በክልል አጣራ",
+      filterByCity: "በከተማ አጣራ",
+      minPrice: "ከፍተኛ ዋጋ",
+      maxPrice: "ፍፁም ዋጋ",
+      sqm: "ሜ²",
+      property: "ቤት"
+    },
       contact: {
         title: "አግኙን",
         subtitle: "ጥያቄ ካለዎት እባክዎ ያግኙን።...",
@@ -195,6 +268,30 @@ login: {
         phoneLabel: "ስልክ:",
         addressLabel: "አድራሻ:"
       }, 
+       services: {
+      heading: 'አገልግሎቶቻችን',
+      description: 'እኛ ገዢዎችን፣ ሻጮችን እና ንብረት ባለቤቶችን ለሚረዱ የንብረት አገልግሎቶች አሰፋሰፋ እንሰጣለን።',
+      propertyListings: {
+        title: 'የንብረት ዝርዝሮች',
+        desc: 'በዝርዝር መግለጫዎችና ምስሎች የተሞላ ተረጋጋ የንብረት ዝርዝሮችን እይታ ያድርጉ።'
+      },
+      propertyManagement: {
+        title: 'የንብረት አስተዳደር',
+        desc: 'የንብረት ዝርዝሮችዎን አስተዳደር ያድርጉ፣ ዝርዝሮችን ያዘምኑ እና ቦታዎችን ቀጥታ ተከታትሉ።'
+      },
+      advancedSearch: {
+        title: 'የበለጠ ፍለጋ እና አማራጮች',
+        desc: 'በአካባቢ፣ ዋጋ እና ተጨማሪ ማዕከላዊ አማራጮች የንብረት ፍለጋ አጠቃቀም።'
+      },
+      securePayment: {
+        title: 'ደህንነታማ ክፍያ ሂደት',
+        desc: 'በደህንነታማና ታማኝ የክፍያ መንገድ ቀላል ግብይቶችን አከናውን።'
+      },
+      customerSupport: {
+        title: 'የደንበኞች ድጋፍ',
+        desc: 'በቀን 24/7 በቅድሚያ ተዘጋጅቷ ያለ የደንበኞች ድጋፍ ቡድን እርዳታ ያግኙ።'
+      }
+    },
       dashboard: {
         title: "የአስተዳዳሪ ዳሽቦርድ",
         totalUsers: "ጠቅላላ ተጠቃሚዎች",
@@ -277,13 +374,15 @@ register: {
 },
 navbar: {
   home: "መነሻ",
+   title: "እንቅስቃሴ ንብረት",
   about: "ስለ እኛ",
   service: "አገልግሎት",
   pricing: "ዋጋ",
   contact: "አግኙን",
   faq: "ጥያቄዎች",
   login: "ግባ",
-  register: "መመዝገብ"
+  register: "መመዝገብ",
+  Realestate: "የንብረት አስተዳደር"
 }
 
 
@@ -292,28 +391,52 @@ navbar: {
 
   om: {
     translation: {
-      findYourHome: "Mana Abjuu Kee Argadhu",
-      searchLocation: "Bakkee barbaadi...",
-      filterType: "Gosa Filla",
-      filterStatus: "Haala Filla",
-      sortBy: "Sirreeffama",
-      rent: "Kira",
-      buy: "Bitii",
+      home: {
+      findYourHome: "Mana Jaalalaa Kee Argadhu",
+      filterType: "Filta Gosa",
+      rent: "Qabaachuu",
+      buy: "Bitachuu",
+      sortBy: "Filadhu",
+      priceAsc: "Gatii: Gadi irraa Olatti",
+      priceDesc: "Gatii: Ol irraa Gadiitti",
+      sizeAsc: "Guddaa: Xiqqoo irraa Guddatti",
+      sizeDesc: "Guddaa: Guddaa irraa Xiqqootti",
+      featuredProperties: "Mannoon Agarsiifamoo",
+      errorLoading: "Mannoon hin argamne. Irra deebi'ii yeroo booda yaali.",
+      viewDetails: "Daqiiqaa Ilaaluu",
+      propertyImages: "Suura Mannoo",
+      description: "Ibsa",
+      propertyDetails: "Daqiiqaa Mannoo",
+      featuresAmenities: "Qabiyyee & Qulqullina",
+      contactBooking: "Qunnamtii & Qabachuu",
       status: "Haala",
-      priceAsc: "Gatii: Irraa gadi gara ol",
-      priceDesc: "Gatii: Irraa ol gara gadi",
-      sizeAsc: "Guddaa: Xixiqqaa gara guddaa",
-      sizeDesc: "Guddaa: Guddaa gara xixiqqaa",
-      featuredProperties: "Teessoo filatamoo",
-      loading: "Teessoo fe’amaa jiru...",
-      errorLoading: "Teessoo fe’uu hin dandeenye.",
-      noProperties: "Teessoo hin argamne.",
-      view: "Dubbisi",
+      available: "Jiru",
+      booked: "Qabame",
+      availableFrom: "Jiru Eegalu",
+      bookNow: "Amma Qabachuu",
+      currentlyBooked: "Amma Qabame",
+      close: "Cufuu",
+      noProperties: "Mannoon filannoo keetii waliin walqabatu hin argamne",
+      clearFilters: "Filannoo hunda haquu",
+      bedrooms: "Warra Mana",
+      bathrooms: "Mana Fincaanii",
+      forRent: "Qabaachuuf",
+      forSale: "Bitamuuf",
+      beds: "Siree",
+      baths: "Fincaanii",
       price: "Gatii",
-      type: "Gosa",
       size: "Guddaa",
-      close: "Cufi",
-
+      yearBuilt: "Waggaa Ijaarame",
+      condition: "Haala",
+      features: "Qabiyyee",
+      amenities: "Qulqullina",
+      filterByRegion: "Filta Naannoo",
+      filterByCity: "Filta Magaalaa",
+      minPrice: "Gatii Xiqqaa",
+      maxPrice: "Gatii Guddaa",
+      sqm: "m²",
+      property: "Mana"
+    },
       contact: {
         title: "Nu qunnamaa",
         subtitle: "Gaaffii qabduu? Nuti isin gargaarruuf jirra.",
@@ -339,7 +462,32 @@ navbar: {
         emailLabel: "Imeelii:",
         phoneLabel: "Bilbila:",
         addressLabel: "Teessoo:"
+      }, 
+      services: {
+      heading: 'Tajaajiloota Keenya',
+      description: 'Bittaa fi gurgurtaa fi abbootii qabeenyaaf tajaajiloota lafaaf bal’inaan kennina.',
+      propertyListings: {
+        title: 'Galmeewwan Qabeenya',
+        desc: 'Galmeewwan qabeenya ragga’aan hedduu ibsa bal’aan fi suuraawwan waliin ilaali.'
       },
+      propertyManagement: {
+        title: 'Bulchiinsa Qabeenya',
+        desc: 'Galmeewwan qabeenya kee too’achuuf, odeeffannoo haaraa galchuu fi hojiiwwan hordofuu salphisi.'
+      },
+      advancedSearch: {
+        title: 'Barbaacha Olaanaa fi Filannoo',
+        desc: 'Filannoon jabaa bakka, gatii fi dandeettiwwan irratti hundaa’uun qabeenya barbaadi.'
+      },
+      securePayment: {
+        title: 'Galii Nagaa fi Amansiisaa',
+        desc: 'Kufaatii malee gatii kaffaluuf karaa nageenya qabu fayyadami.'
+      },
+      customerSupport: {
+        title: 'Deeggarsa Maamilaa',
+        desc: 'Tajaajila maamilaa guyyaa guutuu sa’atii 24/7 argadhu.'
+      }
+    },
+
 dashboard: {
         title: "Daashiboordii Adminii",
         totalUsers: "Waliigala Hirmaattota",
@@ -428,7 +576,8 @@ navbar: {
   contact: "Nu qunnamaa",
   faq: "Gaaffii",
   login: "Seeni",
-  register: "Galmee"
+  register: "Galmee",
+   title: "mannen jirenya walini",
 }
 
     }

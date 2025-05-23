@@ -15,6 +15,7 @@ const Property = require('./models/Property');
 const paymentVerificationService = require('./services/paymentVerificationService');
 paymentVerificationService.start();
 
+
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
   paymentVerificationService.stop();
@@ -34,6 +35,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const feedbackRoute = require('./routes/feedbackRoutes');
 const analyticsRoute = require('./routes/analyticsRoute'); 
 const bookingRoutes = require('./routes/bookingRoutes');
+const geminiRoutes = require('./routes/geminiRoutes');
 
 
 const app = express();
@@ -57,7 +59,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/feedback', feedbackRoute);
 app.use('/api/analytics', analyticsRoute); // ✅ Correct
 app.use('/api/bookings', bookingRoutes);
-
+app.use('/api/gemini', geminiRoutes);
 
 
 // Health Check
