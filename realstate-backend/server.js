@@ -36,7 +36,7 @@ const feedbackRoute = require('./routes/feedbackRoutes');
 const analyticsRoute = require('./routes/analyticsRoute'); 
 const bookingRoutes = require('./routes/bookingRoutes');
 const geminiRoutes = require('./routes/geminiRoutes');
-
+const announcementRoutes = require('./routes/announcementRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -60,6 +60,7 @@ app.use('/api/feedback', feedbackRoute);
 app.use('/api/analytics', analyticsRoute); // ✅ Correct
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/gemini', geminiRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 
 // Health Check

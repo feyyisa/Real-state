@@ -23,7 +23,7 @@ import Dashboard from './pages/adminpage/Dashboard';
 import UserManage from './pages/adminpage/UserManage';
 import PropertyManage from './pages/adminpage/PropertyManage';
 import FedbackManage from './pages/adminpage/FedbackManage';
-
+import AdminAnnouncements from './pages/adminpage/AdminAnnouncement';
 // Owner Pages
 import AddPropertyForm from './pages/owner/AddPropertyForm';
 import EditPropertyForm from './pages/owner/EditPropertyForm';
@@ -46,7 +46,7 @@ import BookingSummary from './components/BookingSummary';
 import FAQPage from './components/FAQPage';
 import OwnerLayout from './components/OwnerLayout';
 import AdminLayout from './components/AdminLayout';
-
+import CustomerAnnouncements from './components/CustomerAnnouncements';
 function AppContent() {
   const location = useLocation();
   const hideFooterForRoutes = [
@@ -72,6 +72,7 @@ function AppContent() {
         <Route path="/faq" element={<><Navbar /><LanguageSwitcher /><FAQPage /></>} />
 
         {/* Customer Protected Routes */}
+        <Route path="/announcements" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><CustomerAnnouncements /></ProtectedRoute>} />
         <Route path="/bookingSummary" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><BookingSummary /></ProtectedRoute>} />
         <Route path="/socialmedia" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><SocialMediaShare /></ProtectedRoute>} />
         <Route path="/userprofileupdate" element={<ProtectedRoute allowedRoles={['customer']}><Navbar /><LanguageSwitcher /><UserProfileUpdate /></ProtectedRoute>} />
@@ -91,7 +92,7 @@ function AppContent() {
         <Route path="/admin/manageuser" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><UserManage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/manageproperty" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><PropertyManage /></AdminLayout></ProtectedRoute>} />
         <Route path="/admin/managefedback" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><FedbackManage /></AdminLayout></ProtectedRoute>} />
-
+        <Route path="/admin/announcements" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><LanguageSwitcher /><AdminAnnouncements /></AdminLayout></ProtectedRoute>} />
         {/* Owner Protected Routes */}
         <Route path="/owner/dashboard" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><OwnerDashboard /></OwnerLayout></ProtectedRoute>} />
         <Route path="/owner/addpropertyform" element={<ProtectedRoute allowedRoles={['owner']}><OwnerLayout><LanguageSwitcher /><AddPropertyForm /></OwnerLayout></ProtectedRoute>} />

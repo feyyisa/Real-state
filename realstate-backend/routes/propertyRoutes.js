@@ -44,13 +44,13 @@ router.get("/", getAllProperties);
 
 // Route to get properties for customers (only approved and available)
 router.get("/customer/properties", getPropertiesForCustomer);
+// Route to get properties by owner ID
+router.get("/owner/:ownerId", getPropertiesByOwnerId);
 
 
 // Route to get a property by ID
 router.get("/:id", getPropertyById);
 
-// Route to get properties by owner ID
-router.get("/owner/:ownerId", getPropertiesByOwnerId);
 
 // Route to get properties by status (available/booked)
 router.get("/status/:status", getPropertiesByStatus);

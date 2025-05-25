@@ -125,13 +125,26 @@ const getPropertyById = async (req, res) => {
 // Get properties by owner ID
 const getPropertiesByOwnerId = async (req, res) => {
   try {
-    const properties = await Property.find({ owner: req.params.ownerId });
+    const { ownerId } = req.params;
+
+    // Validate ownerId is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(ownerId)) {
+      return res.status(400).json({ message: "Invalid owner ID format" });
+    }
+
+    // Find properties by owner
+    const properties = await Property.find({ owner: ownerId });
+
+    if (!properties || properties.length === 0) {
+      return res.status(404).json({ message: "No properties found for this owner" });
+    }
+
     res.status(200).json(properties);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching properties by owner", error });
+    console.error("Error fetching properties by owner:", error);
+    res.status(500).json({ message: "Error fetching properties by owner", error: error.message });
   }
 };
-
 // Get properties by status (available/booked)
 const getPropertiesByStatus = async (req, res) => {
   try {

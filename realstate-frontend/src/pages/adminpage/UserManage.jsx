@@ -14,11 +14,8 @@ const ManageUsers = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-  if (token) {
-    fetchUsers();
-  }
-}, [token]);
-
+    if (token) fetchUsers();
+  }, [token]);
 
   const fetchUsers = async () => {
     try {
@@ -52,13 +49,7 @@ const ManageUsers = () => {
       );
       alert("User added successfully!");
       setUsers([...users, res.data.user]);
-      setNewUser({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        role: "",
-      });
+      setNewUser({ name: "", email: "", phone: "", password: "", role: "" });
     } catch (err) {
       console.error("Error adding user:", err);
       alert(err.response?.data?.message || "Failed to add user.");
@@ -73,23 +64,24 @@ const ManageUsers = () => {
       alert("All fields except password are required.");
       return;
     }
-
     const updatedData = { name, email, phone, role };
     if (password?.trim()) updatedData.password = password;
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/auth/${_id}`,
+        `http://localhost:5000/api/auth/admin/${_id}`,
         updatedData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const updatedUsers = users.map((user) =>
-        user._id === _id ? res.data : user
-      );
-      setUsers(updatedUsers);
-      setEditUser(null);
+      if (res.data) {
+        const updatedUsers = users.map((user) =>
+          user._id === _id ? res.data : user
+        );
+        setUsers(updatedUsers);
+        setEditUser(null);
+      }
     } catch (err) {
       console.error("Error updating user:", err);
       alert(err.response?.data?.message || "Failed to update user.");
@@ -110,12 +102,28 @@ const ManageUsers = () => {
     }
   };
 
+  const toggleUserStatus = async (userId, currentStatus) => {
+    try {
+      const res = await axios.patch(
+        `http://localhost:5000/api/auth/admin/${userId}/status`,
+        { isActive: !currentStatus },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setUsers(users.map(user => 
+        user._id === userId ? { ...user, isActive: res.data.isActive } : user
+      ));
+    } catch (err) {
+      console.error("Error updating user status:", err);
+      alert(err.response?.data?.message || "Failed to update user status.");
+    }
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
-      <p className="mb-4">Add, edit, or remove users from the system.</p>
 
-      {/* Add User Form */}
       <form onSubmit={handleAddUser} className="space-y-2 bg-gray-100 p-4 rounded mb-6">
         <h2 className="text-lg font-semibold">Add New User</h2>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
@@ -135,18 +143,15 @@ const ManageUsers = () => {
             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
             className="p-2 border rounded">
             <option value="">Select Role</option>
-            <option value="admin">Admin</option>
             <option value="owner">Owner</option>
             <option value="customer">Customer</option>
           </select>
         </div>
-        <button type="submit"
-          className="bg-blue-600 text-white px-4 py-2 mt-3 rounded hover:bg-blue-700">
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 mt-3 rounded hover:bg-blue-700">
           Add User
         </button>
       </form>
 
-      {/* User Table */}
       <div className="bg-white shadow p-4 rounded-lg">
         <h2 className="text-lg font-semibold mb-4">User List</h2>
         <table className="w-full table-auto border border-gray-200">
@@ -155,6 +160,7 @@ const ManageUsers = () => {
               <th className="border p-2">Name</th>
               <th className="border p-2">Email</th>
               <th className="border p-2">Role</th>
+              <th className="border p-2">Status</th>
               <th className="border p-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -180,11 +186,20 @@ const ManageUsers = () => {
                     <select value={editUser.role}
                       onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
                       className="p-1 border rounded w-full">
-                      <option value="admin">Admin</option>
                       <option value="owner">Owner</option>
                       <option value="customer">Customer</option>
                     </select>
                   ) : user.role}
+                </td>
+                <td className="border p-2">
+                  <button
+                    onClick={() => toggleUserStatus(user._id, user.isActive)}
+                    className={`px-2 py-1 rounded text-white ${
+                      user.isActive ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                    }`}
+                  >
+                    {user.isActive ? 'Active' : 'Banned'}
+                  </button>
                 </td>
                 <td className="border p-2 text-center space-x-2">
                   {editUser?._id === user._id ? (

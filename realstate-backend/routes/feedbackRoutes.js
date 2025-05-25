@@ -3,7 +3,8 @@ const router = express.Router();
 const {
   submitFeedback,
   getPropertyFeedback,
-  getAverageRating
+  getAverageRating,
+  getOwnerFeedbacks
 } = require('../controllers/feedbackController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -36,5 +37,8 @@ router.get('/property/:propertyId', getPropertyFeedback);
 
 // ⭐ Get average rating for a property
 router.get('/property/:propertyId/average', getAverageRating);
+
+// 📥 Get all feedback for properties owned by the logged-in owner
+router.get('/owner', protect, getOwnerFeedbacks);
 
 module.exports = router;

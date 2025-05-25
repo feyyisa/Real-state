@@ -13,26 +13,20 @@ const PropertySearch = () => {
   const [size, setSize] = useState('');
 
   const BASE_URL = 'http://localhost:5000'; // your backend URL
-  const userId = localStorage.getItem('userId'); // get logged-in owner ID
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
-    const fetchProperties = async () => {
+    const fetchOwnerProperties = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/properties`);
-        const allProperties = res.data;
-
-        // Filter to show only the properties added by the logged-in owner
-        const ownerProperties = allProperties.filter(
-          (p) => String(p.owner) === String(userId)
-        );
-
-        setProperties(ownerProperties);
+        if (!userId) return;
+        const res = await axios.get(`${BASE_URL}/api/properties/owner/${userId}`);
+        setProperties(res.data);
       } catch (error) {
-        console.error('Error fetching properties:', error.message);
+        console.error('Error fetching owner properties:', error.message);
       }
     };
 
-    fetchProperties();
+    fetchOwnerProperties();
   }, [userId]);
 
   useEffect(() => {
@@ -123,14 +117,14 @@ const PropertySearch = () => {
             <div key={property._id} className="bg-white rounded-2xl shadow-md p-4">
               <img
                 src={
-                  property.image
-                    ? `${BASE_URL}/uploads/${property.image}`
+                  property.profileImage
+                    ? `${BASE_URL}/uploads/${property.profileImage}`
                     : 'https://via.placeholder.com/400x200?text=No+Image'
                 }
-                alt={property.name}
+                alt={property.name || property.title}
                 className="rounded-xl h-40 w-full object-cover mb-2"
               />
-              <h3 className="text-xl font-semibold">{property.name}</h3>
+              <h3 className="text-xl font-semibold">{property.name || property.title}</h3>
               {property.location ? (
                 <p className="text-sm text-gray-600">
                   {property.location.address}, {property.location.city}
@@ -139,7 +133,7 @@ const PropertySearch = () => {
                 <p className="text-sm text-gray-400 italic">Location not specified</p>
               )}
               <p className="mt-1">💰 ${property.price}</p>
-              <p>🛏 {property.rooms} rooms | 📏 {property.size} sqm</p>
+              <p>🛏 {property.rooms || property.bedrooms} rooms | 📏 {property.size} sqm</p>
               <p>⭐ {property.rating || 0} | 🔥 {property.popularity || 0} views</p>
               <p className="mt-2 text-gray-700">{property.description || 'No description provided.'}</p>
             </div>

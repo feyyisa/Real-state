@@ -96,6 +96,38 @@ const getAverageRating = async (req, res) => {
   }
 };
 
+// @desc    Get all feedback for properties owned by the logged-in owner
+// @route   GET /api/feedback/owner
+// @access  Private
+const getOwnerFeedbacks = async (req, res) => {
+  try {
+    const ownerId = req.user._id;
+
+    // Find all properties owned by this owner
+    const properties = await Property.find({ owner: ownerId }).select('_id');
+    const propertyIds = properties.map((p) => p._id);
+
+    if (propertyIds.length === 0) {
+      return res.status(200).json({ success: true, count: 0, data: [] });
+    }
+
+    // Find all feedback for these properties
+    const feedbacks = await Feedback.find({ property: { $in: propertyIds } })
+      .populate('user', 'name email profilePicture')
+      .populate('property', 'title')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: feedbacks.length,
+      data: feedbacks
+    });
+  } catch (error) {
+    console.error('Error fetching owner feedbacks:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
 // 🔁 Internal: Update average rating and review count on property
 const updatePropertyRating = async (propertyId) => {
   try {
@@ -124,5 +156,6 @@ const updatePropertyRating = async (propertyId) => {
 module.exports = {
   submitFeedback,
   getPropertyFeedback,
-  getAverageRating
+  getAverageRating,
+  getOwnerFeedbacks
 };

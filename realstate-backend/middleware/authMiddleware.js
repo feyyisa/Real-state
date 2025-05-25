@@ -34,6 +34,9 @@ const authorizeAdmin = authorizeRole('admin');
 const authorizeOwner = authorizeRole('owner');
 const authorizeCustomer = authorizeRole('customer');
 
+// Add this line to match your existing route middleware
+const adminOnly = authorizeAdmin;
+
 // Protect route for token verification and user data (if needed)
 const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -58,5 +61,6 @@ module.exports = {
   authorizeAdmin,
   authorizeOwner,
   authorizeCustomer,
-  protect,  // Export the protect middleware
+  protect,
+  adminOnly  // ✅ Add this so your routes can use it
 };

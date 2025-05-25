@@ -11,10 +11,12 @@ export default function Navbar() {
   const role = user?.role;
 
   return (
-    <div className="bg-green-400">
-      <h1 className="text-2xl font-bold text-gray-700 text-center">{t("navbar.title")}</h1>
-      {/* Navbar Items */}
-      <ul className="flex justify-end space-x-6 text-white font-semibold mt-2">
+    <div className="bg-green-400 p-4">
+      <h1 className="text-2xl font-bold text-gray-700 text-center mb-4">
+        {t("navbar.title")}
+      </h1>
+
+      <ul className="flex justify-end space-x-6 text-white font-semibold">
         <li>
           <Link to="/">{t("navbar.home")}</Link>
         </li>
@@ -33,8 +35,14 @@ export default function Navbar() {
         <li>
           <Link to="/faq">{t("navbar.faq")}</Link>
         </li>
-       
-        {role === "customer" && <UserDropdown />}
+        <li>
+          <Link to="announcements">{t("Announcements")}</Link>
+        </li>
+        {role === "customer" && (
+          <li>
+            <UserDropdown />
+          </li>
+        )}
       </ul>
     </div>
   );

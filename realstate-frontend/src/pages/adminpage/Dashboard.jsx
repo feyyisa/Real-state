@@ -27,11 +27,16 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
-    totalUsers: 0,
+    totalCustomers: 0,
+    totalOwners: 0,
     totalProperties: 0,
-    totalBookings: 0,
+    approvedProperties: 0,
+    rejectedProperties: 0,
+    pendingProperties: 0,
+    totalSoldProperties: 0,
+    totalRentedProperties: 0,
+    availableProperties: 0,
     totalEarnings: 0,
-    pendingApprovals: 0,
   });
 
   const [error, setError] = useState('');
@@ -62,13 +67,7 @@ const AdminDashboard = () => {
           return;
         }
 
-        setStats({
-          totalUsers: data.totalUsers,
-          totalProperties: data.totalProperties,
-          totalBookings: data.totalBookings,
-          totalEarnings: data.totalEarnings,
-          pendingApprovals: data.pendingApprovals,
-        });
+        setStats(data);
       } catch (err) {
         console.error(err);
         setError(err.message || 'Error fetching analytics.');
@@ -78,131 +77,110 @@ const AdminDashboard = () => {
     fetchAnalytics();
   }, []);
 
-  // Chart data per metric:
-
-  const usersChartData = {
-    labels: ['Today'],
+  // Chart data configurations
+  const userDistributionData = {
+    labels: ['Customers', 'Owners'],
     datasets: [
       {
-        label: 'Total Users',
-        data: [stats.totalUsers],
-        borderColor: 'rgba(59, 130, 246, 1)',
-        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-        fill: false,
-        tension: 0.3,
-        pointRadius: 6,
-        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+        data: [stats.totalCustomers, stats.totalOwners],
+        backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+        borderColor: ['rgba(59, 130, 246, 1)', 'rgba(16, 185, 129, 1)'],
+        borderWidth: 1,
       },
     ],
   };
 
-  const propertiesChartData = {
-    labels: ['Properties'],
+  const propertyStatusData = {
+    labels: ['Approved', 'Rejected', 'Pending'],
     datasets: [
       {
-        label: 'Total Properties',
-        data: [stats.totalProperties],
-        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-        borderRadius: 6,
+        data: [stats.approvedProperties, stats.rejectedProperties, stats.pendingProperties],
+        backgroundColor: [
+          'rgba(16, 185, 129, 0.7)',
+          'rgba(239, 68, 68, 0.7)',
+          'rgba(245, 158, 11, 0.7)'
+        ],
       },
     ],
   };
 
-  const bookingsChartData = {
-    labels: ['Confirmed Bookings'],
+  const propertyTransactionsData = {
+    labels: ['Sold', 'Rented', 'Available'],
     datasets: [
       {
-        data: [stats.totalBookings],
-        backgroundColor: ['rgba(245, 158, 11, 0.7)'],
-        hoverOffset: 10,
+        data: [stats.totalSoldProperties, stats.totalRentedProperties, stats.availableProperties],
+        backgroundColor: [
+          'rgba(139, 92, 246, 0.7)',
+          'rgba(14, 165, 233, 0.7)',
+          'rgba(34, 197, 94, 0.7)'
+        ],
       },
     ],
   };
 
-  const earningsChartData = {
-    labels: ['Earnings'],
+  const earningsData = {
+    labels: ['Total Earnings'],
     datasets: [
       {
         data: [stats.totalEarnings],
-        backgroundColor: ['rgba(239, 68, 68, 0.7)'],
-        hoverOffset: 15,
+        backgroundColor: ['rgba(234, 179, 8, 0.7)'],
       },
     ],
-  };
-
-  const pendingApprovalsChartData = {
-    labels: ['Pending Approvals'],
-    datasets: [
-      {
-        label: 'Pending Approvals',
-        data: [stats.pendingApprovals],
-        backgroundColor: 'rgba(147, 197, 253, 0.7)',
-        borderRadius: 6,
-      },
-    ],
-  };
-
-  const pendingApprovalsOptions = {
-    indexAxis: 'y',
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      title: { display: true, text: 'Pending Approvals' },
-    },
-    scales: {
-      x: { beginAtZero: true },
-    },
   };
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6"> Analytics report</h1>
+      <h1 className="text-3xl font-bold mb-6">Admin Analytics Dashboard</h1>
 
       {error && <p className="text-red-500 mb-6">{error}</p>}
 
       {!error && (
         <>
-          {/* Top Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
-            <StatCard title="Total Users" value={stats.totalUsers} />
+          {/* User Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <StatCard title="Total Customers" value={stats.totalCustomers} />
+            <StatCard title="Total Owners" value={stats.totalOwners} />
             <StatCard title="Total Properties" value={stats.totalProperties} />
-            <StatCard title="Total Bookings" value={stats.totalBookings} />
-            <StatCard title="Total Earnings" value={`$${stats.totalEarnings.toLocaleString()}`} />
-            <StatCard title="Pending Approvals" value={stats.pendingApprovals} />
           </div>
 
-          {/* Detailed Chart Cards, 2 per row */}
+          {/* Property Status */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <StatCard title="Approved Properties" value={stats.approvedProperties} />
+            <StatCard title="Rejected Properties" value={stats.rejectedProperties} />
+            <StatCard title="Pending Properties" value={stats.pendingProperties} />
+          </div>
+
+          {/* Transactions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <StatCard title="Properties Sold" value={stats.totalSoldProperties} />
+            <StatCard title="Properties Rented" value={stats.totalRentedProperties} />
+            <StatCard title="Available Properties" value={stats.availableProperties} />
+          </div>
+
+          {/* Financials */}
+          <div className="mb-8">
+            <StatCard 
+              title="Total Earnings" 
+              value={`$${stats.totalEarnings.toLocaleString()}`} 
+            />
+          </div>
+
+          {/* Charts Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <AnalyticsCard title="Total Users" value={stats.totalUsers}>
-              <Line
-                data={usersChartData}
-                options={{ responsive: true, plugins: { legend: { display: false } } }}
-              />
+            <AnalyticsCard title="User Distribution">
+              <Doughnut data={userDistributionData} />
             </AnalyticsCard>
 
-            <AnalyticsCard title="Total Properties" value={stats.totalProperties}>
-              <Bar
-                data={propertiesChartData}
-                options={{ responsive: true, plugins: { legend: { display: false } } }}
-              />
+            <AnalyticsCard title="Property Status">
+              <Pie data={propertyStatusData} />
             </AnalyticsCard>
 
-            <AnalyticsCard title="Total Bookings" value={stats.totalBookings}>
-              <Pie
-                data={bookingsChartData}
-                options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }}
-              />
+            <AnalyticsCard title="Property Transactions">
+              <Pie data={propertyTransactionsData} />
             </AnalyticsCard>
 
-            <AnalyticsCard title="Total Earnings" value={`$${stats.totalEarnings.toLocaleString()}`}>
-              <Doughnut
-                data={earningsChartData}
-                options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }}
-              />
-            </AnalyticsCard>
-
-            <AnalyticsCard title="Pending Approvals" value={stats.pendingApprovals}>
-              <Bar data={pendingApprovalsChartData} options={pendingApprovalsOptions} />
+            <AnalyticsCard title="Total Earnings">
+              <Bar data={earningsData} />
             </AnalyticsCard>
           </div>
         </>
@@ -218,11 +196,10 @@ const StatCard = ({ title, value }) => (
   </div>
 );
 
-const AnalyticsCard = ({ title, value, children }) => (
-  <div className="bg-white shadow rounded-lg p-5 flex flex-col items-center">
-    <h2 className="text-xl font-semibold mb-2 text-gray-700">{title}</h2>
-    <p className="text-3xl font-bold text-blue-600 mb-4">{value}</p>
-    <div className="w-full max-w-xs h-48">{children}</div>
+const AnalyticsCard = ({ title, children }) => (
+  <div className="bg-white shadow rounded-lg p-5">
+    <h2 className="text-xl font-semibold mb-4 text-gray-700">{title}</h2>
+    <div className="w-full h-64">{children}</div>
   </div>
 );
 

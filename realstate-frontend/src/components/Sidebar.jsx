@@ -50,7 +50,14 @@ const AdminSidebar = () => {
           title="Manage Contact"
           className={`${linkBase} ${isActive("/admin/managefedback") ? activeClass : inactiveClass}`}
         >
-          <Mail size={28} />
+          <Mail size={28} /> 
+        </Link>
+        <Link
+          to="/admin/announcements"
+          title="AdminAnnouncements"
+          className={`${linkBase} ${isActive("/admin/announcements") ? activeClass : inactiveClass}`}
+        >
+          <Mail size={28} /> 
         </Link>
       </nav>
     </div>

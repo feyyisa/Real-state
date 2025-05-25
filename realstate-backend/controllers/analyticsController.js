@@ -8,36 +8,105 @@ const getAnalytics = async (req, res) => {
     const role = user.role;
 
     if (role === "admin") {
-      const totalUsers = await User.countDocuments();
+      // User counts
+      const totalCustomers = await User.countDocuments({ role: 'customer' });
+      const totalOwners = await User.countDocuments({ role: 'owner' });
+      
+      // Property status counts
       const totalProperties = await Property.countDocuments();
-      const totalBookings = await Booking.countDocuments({ status: 'confirmed' });
+      const approvedProperties = await Property.countDocuments({ approvalStatus: 'approved' });
+      const rejectedProperties = await Property.countDocuments({ approvalStatus: 'rejected' });
+      const pendingProperties = await Property.countDocuments({ approvalStatus: 'pending' });
+      
+      // Property transaction counts based on status and listingType
+      const soldProperties = await Property.countDocuments({ 
+        status: 'booked',
+        listingType: 'sell'
+      });
+      
+      const rentedProperties = await Property.countDocuments({ 
+        status: 'booked',
+        listingType: 'rent'
+      });
+      
+      const availableProperties = await Property.countDocuments({ 
+        status: 'available' 
+      });
+
+      // Financials
       const totalEarningsAgg = await Booking.aggregate([
         { $match: { paymentStatus: 'paid' } },
         { $group: { _id: null, total: { $sum: "$totalPrice" } } }
       ]);
       const totalEarnings = totalEarningsAgg[0]?.total || 0;
-      const pendingApprovals = await Property.countDocuments({ approvalStatus: "pending" });
 
       return res.json({
         role: "admin",
-        totalUsers,
+        totalCustomers,
+        totalOwners,
         totalProperties,
-        totalBookings,
-        totalEarnings,
-        pendingApprovals,
+        approvedProperties,
+        rejectedProperties,
+        pendingProperties,
+        totalSoldProperties: soldProperties,
+        totalRentedProperties: rentedProperties,
+        availableProperties,
+        totalEarnings
       });
     }
     else if (role === "owner") {
       const ownerId = user._id;
-      const ownerProperties = await Property.find({ owner: ownerId }).select('_id approvalStatus');
-      const propertyIds = ownerProperties.map(p => p._id);
-      const pendingProperties = ownerProperties.filter(p => p.approvalStatus === "pending").length;
-
-      const totalBookings = await Booking.countDocuments({ 
+      
+      // Owner's property status counts
+      const totalProperties = await Property.countDocuments({ owner: ownerId });
+      const approvedProperties = await Property.countDocuments({ 
+        owner: ownerId, 
+        approvalStatus: 'approved' 
+      });
+      const rejectedProperties = await Property.countDocuments({ 
+        owner: ownerId, 
+        approvalStatus: 'rejected' 
+      });
+      const pendingProperties = await Property.countDocuments({ 
+        owner: ownerId, 
+        approvalStatus: 'pending' 
+      });
+      
+      // Owner's property transaction counts based on status and listingType
+      const soldProperties = await Property.countDocuments({ 
+        owner: ownerId,
+        status: 'booked',
+        listingType: 'sell'
+      });
+      
+      const rentedProperties = await Property.countDocuments({ 
+        owner: ownerId,
+        status: 'booked',
+        listingType: 'rent'
+      });
+      
+      // Owner's booking counts
+      const propertyIds = (await Property.find({ owner: ownerId }).select('_id'))
+        .map(p => p._id);
+      
+      const totalSoldBookings = await Booking.countDocuments({ 
         property: { $in: propertyIds },
-        status: 'confirmed'
+        transactionType: 'sale',
+        status: 'completed'
+      });
+      
+      const totalRentedBookings = await Booking.countDocuments({ 
+        property: { $in: propertyIds },
+        transactionType: 'rent',
+        status: 'completed'
+      });
+      
+      const availableProperties = await Property.countDocuments({ 
+        owner: ownerId,
+        status: 'available' 
       });
 
+      // Owner's earnings
       const totalEarningsAgg = await Booking.aggregate([
         { $match: {
           property: { $in: propertyIds },
@@ -49,13 +118,18 @@ const getAnalytics = async (req, res) => {
 
       return res.json({
         role: "owner",
-        propertyCount: ownerProperties.length,
-        totalBookings,
-        totalEarnings,
+        totalProperties,
+        approvedProperties,
+        rejectedProperties,
         pendingProperties,
+        totalSoldProperties: soldProperties,
+        totalRentedProperties: rentedProperties,
+        totalSoldBookings,
+        totalRentedBookings,
+        availableProperties,
+        totalEarnings
       });
     }
-
     else {
       return res.status(403).json({ error: "Access denied: unsupported role." });
     }

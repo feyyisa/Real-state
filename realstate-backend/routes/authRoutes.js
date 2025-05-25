@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const {
@@ -12,27 +11,32 @@ const {
   deleteUser,
   updateProfile,
   getUserProfile,
-  updateUser
+  updateUserByAdmin,
+  updateUserStatus,
+  verifyOwner
 } = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware'); // middleware to protect routes
+
+const { protect, adminOnly } = require('../middleware/authMiddleware');
 
 // Public routes
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 
-// Protected routes
-router.get('/profile', protect, getCurrentUser); // current authenticated user
-router.put('/profile', protect, updateProfile); // update current user
-router.get('/me', protect, getUserProfile); // optional: another current user profile route
+// Protected routes (for all authenticated users)
+router.get('/profile', protect, getCurrentUser);
+router.put('/profile', protect, updateProfile); // Customer updates their own profile
+router.get('/me', protect, getUserProfile);
 
-// Admin or Protected Routes (adjust permissions in middleware if needed)
-router.get('/', protect, getAllUsers);
-router.get('/:id', protect, getUserById);
-router.get('/role/:role', protect, getUsersByRole);
+// Admin-only routes
+router.get('/', protect, adminOnly, getAllUsers);
+router.get('/:id', protect, adminOnly, getUserById);
+router.get('/role/:role', protect, adminOnly, getUsersByRole);
+router.delete('/:id', protect, adminOnly, deleteUser);
+router.put('/admin/:id', protect, adminOnly, updateUserByAdmin);
+router.patch('/admin/:id/status', protect, adminOnly, updateUserStatus);
+router.patch('/admin/:id/verify', protect, adminOnly, verifyOwner);
+
+// Customer can update their own profile (separate from admin updates)
 router.put('/:id', protect, updateUserProfile);
-router.delete('/:id', protect, deleteUser);
-router.put('/:id,', protect, updateUser);
-
-
 
 module.exports = router;

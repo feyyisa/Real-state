@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineKingBed, MdOutlineBathtub, MdDateRange } from 'react-icons/md';
 //import FeedbackList from './../owner/FeedbackList';
 import RealEstateChat from "../../RealEstateChat";
+import ShareButtons from "../../components/ShareBotton";
 
 // Ethiopian regions and sample cities
 const ethiopianRegions = [
@@ -322,6 +323,7 @@ const Home = () => {
 
         {/* Property Detail Modal */}
         {selectedProperty && (
+          
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="relative">
@@ -519,7 +521,9 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              
+               <div className="p-6 border-t">
+        <ShareButtons property={selectedProperty} />
+      </div>
                 {/* Feedback Form */}
                 <div className="p-6 border-t">
                   <FeedbackForm propertyId={selectedProperty._id} />

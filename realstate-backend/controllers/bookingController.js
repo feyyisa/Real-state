@@ -469,133 +469,148 @@ const updateBookingStatus = async (req, res) => {
     const { bookingId } = req.params;
     const { status } = req.body;
 
-    // Validate status
-    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
+    // Define valid statuses
+    const validStatuses = ['pending', 'confirmed', 'rejected', 'cancelled', 'completed'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Invalid status value' 
+        message: 'Invalid status value',
       });
     }
 
-    // Find and validate the booking
+    // Fetch booking with related data
     const booking = await Booking.findById(bookingId)
       .populate('property')
       .populate('bookedBy');
 
     if (!booking) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Booking not found' 
+        message: 'Booking not found',
       });
     }
 
-    // Prevent invalid status transitions
+    // Prevent modifications on completed bookings
     if (booking.status === 'completed') {
       return res.status(400).json({
         success: false,
-        message: 'Completed bookings cannot be modified'
+        message: 'Completed bookings cannot be modified',
       });
     }
 
-    // Handle status-specific logic
-    if (status === 'cancelled') {
-      // Only allow cancellation if booking isn't already completed
-      if (booking.status === 'completed') {
+    // Prevent invalid backward transitions:
+    // e.g. from confirmed -> pending or rejected after completed
+    if (booking.status === 'rejected' && status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Rejected bookings can only be reset to pending',
+      });
+    }
+
+    // Handle specific status transitions
+    if (status === 'rejected' || status === 'cancelled') {
+      // Can only reject/cancel if not confirmed or completed
+      if (booking.status === 'confirmed' || booking.status === 'completed') {
         return res.status(400).json({
           success: false,
-          message: 'Cannot cancel a completed booking'
+          message: 'Cannot cancel or reject a confirmed or completed booking',
         });
       }
 
       // Update property status to available
-      await Property.findByIdAndUpdate(
-        booking.property._id,
-        { status: 'available' }
-      );
+      await Property.findByIdAndUpdate(booking.property._id, { status: 'available' });
 
-      // Optionally update payment status if needed
+      // Optionally refund payment if paid
       if (booking.paymentStatus === 'paid') {
-        await Booking.findByIdAndUpdate(
-          bookingId,
-          { 
-            status: 'cancelled',
-            paymentStatus: 'refunded' // Or keep as paid depending on your business logic
-          }
-        );
+        await Booking.findByIdAndUpdate(bookingId, {
+          status,
+          paymentStatus: 'refunded', // Adjust if you prefer to keep paid
+        });
+      } else {
+        await Booking.findByIdAndUpdate(bookingId, { status });
       }
 
     } else if (status === 'confirmed') {
-      // Additional checks for confirmed status
-      if (booking.status === 'pending' && booking.paymentStatus !== 'paid') {
-        return res.status(400).json({ 
+      // Only confirm if currently pending and payment is done
+      if (booking.status !== 'pending') {
+        return res.status(400).json({
           success: false,
-          message: 'Cannot confirm unpaid booking' 
+          message: 'Only pending bookings can be confirmed',
         });
       }
 
-      // Mark property as booked
-      await Property.findByIdAndUpdate(
-        booking.property._id,
-        { status: 'booked' }
-      );
+      if (booking.paymentStatus !== 'paid') {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot confirm unpaid booking',
+        });
+      }
 
-      // If this is a rental property, you might want to set availableFrom date
+      // Mark property as booked and set availableFrom if rent
+      const updateData = { status: 'booked' };
+
       if (booking.type === 'rent') {
         const newAvailableDate = new Date();
-        newAvailableDate.setMonth(newAvailableDate.getMonth() + 1); // Example: 1 month from now
-        
-        await Property.findByIdAndUpdate(
-          booking.property._id,
-          { 
-            status: 'booked',
-            availableFrom: newAvailableDate
-          }
-        );
+        newAvailableDate.setMonth(newAvailableDate.getMonth() + 1);
+        updateData.availableFrom = newAvailableDate;
       }
+
+      await Property.findByIdAndUpdate(booking.property._id, updateData);
+
+      // Update booking status below
 
     } else if (status === 'completed') {
-      // Handle completion logic
-      if (booking.type === 'sell') {
-        // For sales, property might become unavailable permanently
-        await Property.findByIdAndUpdate(
-          booking.property._id,
-          { status: 'booked' } // Or you might have a 'sold' status
-        );
-      } else {
-        // For rentals, property becomes available again
-        const newAvailableDate = new Date();
-        newAvailableDate.setDate(newAvailableDate.getDate() + 1); // Available tomorrow
-        
-        await Property.findByIdAndUpdate(
-          booking.property._id,
-          { 
-            status: 'available',
-            availableFrom: newAvailableDate
-          }
-        );
+      // Only confirm completion if booking is confirmed
+      if (booking.status !== 'confirmed') {
+        return res.status(400).json({
+          success: false,
+          message: 'Only confirmed bookings can be marked completed',
+        });
       }
 
-      // Update earnings for the property owner
-      await Property.findByIdAndUpdate(
-        booking.property._id,
-        { 
-          $inc: { 
-            earnings: booking.totalPrice,
-            acceptedBookings: 1
-          }
-        }
-      );
+      // For sales, property might become unavailable permanently
+      if (booking.type === 'sell') {
+        await Property.findByIdAndUpdate(booking.property._id, { status: 'sold' }); // or 'booked' based on your logic
+      } else {
+        // For rentals, property becomes available again tomorrow
+        const newAvailableDate = new Date();
+        newAvailableDate.setDate(newAvailableDate.getDate() + 1);
+
+        await Property.findByIdAndUpdate(booking.property._id, {
+          status: 'available',
+          availableFrom: newAvailableDate,
+        });
+      }
+
+      // Update earnings and accepted bookings counters on property
+      await Property.findByIdAndUpdate(booking.property._id, {
+        $inc: {
+          earnings: booking.totalPrice,
+          acceptedBookings: 1,
+        },
+      });
+
+      // Update booking status below
+    } else if (status === 'pending') {
+      // Allow resetting to pending only from rejected (optional)
+      if (booking.status !== 'rejected') {
+        return res.status(400).json({
+          success: false,
+          message: 'Only rejected bookings can be reset to pending',
+        });
+      }
+
+      // Update property status if needed
+      await Property.findByIdAndUpdate(booking.property._id, { status: 'available' });
     }
 
-    // Update booking status
+    // Update booking status finally
     const updatedBooking = await Booking.findByIdAndUpdate(
       bookingId,
       { status },
       { new: true }
     );
 
-    // Return consistent response with both booking and property status
     res.status(200).json({
       success: true,
       data: {
@@ -603,33 +618,36 @@ const updateBookingStatus = async (req, res) => {
         property: {
           id: booking.property._id,
           title: booking.property.title,
-          status: status === 'cancelled' ? 'available' : 
-                 status === 'confirmed' ? 'booked' : 
-                 booking.property.status
+          status: status === 'rejected' || status === 'cancelled' || status === 'pending'
+            ? 'available'
+            : status === 'confirmed' || status === 'completed'
+            ? 'booked'
+            : booking.property.status,
         },
         bookedBy: {
           id: booking.bookedBy._id,
-          name: booking.bookedBy.name
+          name: booking.bookedBy.name,
         },
         bookingDetails: {
           status: updatedBooking.status,
           paymentStatus: updatedBooking.paymentStatus,
           type: booking.type,
           totalPrice: booking.totalPrice,
-          updatedAt: updatedBooking.updatedAt
-        }
-      }
+          updatedAt: updatedBooking.updatedAt,
+        },
+      },
     });
 
   } catch (error) {
     console.error('Error updating booking status:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: 'Error updating booking status',
-      error: error.message 
+      error: error.message,
     });
   }
 };
+
 
 module.exports = {
   book,

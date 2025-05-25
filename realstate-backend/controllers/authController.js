@@ -159,29 +159,79 @@ const updateProfile = asyncHandler(async (req, res) => {
     },
   });
 });
+// Admin: Update any user except self
+const updateUserByAdmin = asyncHandler(async (req, res) => {
+  const adminId = req.user.id;
+  const userIdToUpdate = req.params.id;
 
-// ✅ FIXED: updateUser - for admin to edit any user
-const updateUser = asyncHandler(async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const updatedData = req.body;
-
-    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+  if (adminId === userIdToUpdate) {
+    return res.status(400).json({ message: 'Admins cannot update their own profile here' });
   }
+
+  const { name, email, phone, role, password } = req.body;
+
+  if (!name || !email || !phone || !role) {
+    return res.status(400).json({ message: 'All fields except password are required' });
+  }
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser && existingUser._id.toString() !== userIdToUpdate) {
+    return res.status(400).json({ message: 'Email already in use' });
+  }
+
+  const updatedData = { name, email, phone, role };
+  if (password && password.trim()) {
+    updatedData.password = await bcrypt.hash(password, 10);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userIdToUpdate, updatedData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.status(200).json(updatedUser);
+});
+// Update user status (active/banned)
+const updateUserStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { isActive } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    id,
+    { isActive },
+    { new: true, runValidators: true }
+  );
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.status(200).json(user);
 });
 
+// Verify/unverify owner
+const verifyOwner = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { isVerified } = req.body;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (user.role !== 'owner') {
+    return res.status(400).json({ message: 'Only owners can be verified' });
+  }
+
+  user.isVerified = isVerified;
+  await user.save();
+
+  res.status(200).json(user);
+});
 module.exports = {
   registerUser,
   loginUser,
@@ -193,5 +243,7 @@ module.exports = {
   deleteUser,
   getUserProfile,
   updateProfile,
-  updateUser, // ✅ This is now properly defined above
+  updateUserByAdmin,
+  updateUserStatus,
+  verifyOwner
 };

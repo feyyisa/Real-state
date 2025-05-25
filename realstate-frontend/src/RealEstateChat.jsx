@@ -8,7 +8,12 @@ const RealEstateChat = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Ref to auto-scroll chat to bottom
   const messagesEndRef = useRef(null);
+
+  // Generate and store a simple userId once per session
+  const userIdRef = useRef('user_' + Math.random().toString(36).substring(2, 10));
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -17,19 +22,29 @@ const RealEstateChat = () => {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-    setMessages(prev => [...prev, { from: 'user', text: input }]);
+
     const userInput = input;
+    setMessages(prev => [...prev, { from: 'user', text: userInput }]);
     setInput('');
     setLoading(true);
     setError('');
 
     try {
+      // Prepare conversation history string
+      const historyText = messages
+        .map(m => (m.from === 'user' ? `User: ${m.text}` : `Bot: ${m.text}`))
+        .join('\n');
+
       const response = await fetch('http://localhost:5000/api/gemini/real-estate-query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: userInput }),
+        body: JSON.stringify({
+          query: userInput,
+          history: historyText,
+          userId: userIdRef.current,
+        }),
       });
 
       const data = await response.json();
@@ -51,6 +66,7 @@ const RealEstateChat = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-blue-700"
+        aria-label="Toggle chat window"
       >
         💬
       </button>
@@ -76,9 +92,7 @@ const RealEstateChat = () => {
               </div>
             ))}
 
-            {loading && (
-              <div className="text-gray-500 text-sm">⏳ Typing...</div>
-            )}
+            {loading && <div className="text-gray-500 text-sm">⏳ Typing...</div>}
 
             <div ref={messagesEndRef} />
           </div>
@@ -86,24 +100,24 @@ const RealEstateChat = () => {
           <div className="p-2 border-t border-gray-200 flex items-center">
             <input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && sendMessage()}
               type="text"
               placeholder="Ask something..."
               className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+              aria-label="Chat input"
             />
             <button
               onClick={sendMessage}
               className="ml-2 text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
               disabled={loading}
+              aria-label="Send message"
             >
               Send
             </button>
           </div>
 
-          {error && (
-            <div className="text-red-500 text-xs p-2">{error}</div>
-          )}
+          {error && <div className="text-red-500 text-xs p-2">{error}</div>}
         </div>
       )}
     </div>

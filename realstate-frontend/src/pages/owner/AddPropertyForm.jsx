@@ -423,7 +423,7 @@ const AddPropertyForm = ({ onPropertyAdded }) => {
 
         {/* Price */}
         <div>
-          <label className="block text-sm font-medium">Price* (ETB)</label>
+          <label className="block text-sm font-medium">Price* ($)</label>
           <input
             name="price"
             type="number"

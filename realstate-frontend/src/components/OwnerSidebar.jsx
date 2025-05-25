@@ -45,13 +45,6 @@ const OwnerSidebar = () => {
           <Building2 size={20} />
         </Link>
         <Link
-          to="/owner/searchproperty"
-          title="Search Properties"
-          className={`${linkBase} ${isActive("/owner/searchproperty") ? activeClass : inactiveClass} mb-1`}
-        >
-          <Search size={20} />
-        </Link>
-        <Link
           to="/owner/ownerbookingmanager"
           title="Bookings"
           className={`${linkBase} ${isActive("/owner/ownerbookingmanager") ? activeClass : inactiveClass} mb-1`}
